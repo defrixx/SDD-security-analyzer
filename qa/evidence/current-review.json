@@ -1,0 +1,95 @@
+{
+  "status": "derived_summary_of_final_current_evidence",
+  "original_catalog_sha256": "95334c15b023e941aca8da93181e08ad79b358b9be435e45da87e19a9b24ab22",
+  "records": 821,
+  "active_records": 820,
+  "context_reference_records": 1,
+  "clauses": 3011,
+  "groups": [
+    {
+      "group": "ai",
+      "annotation_sha256": "9cdea1e724b5ecf51a5da6b9e523f69a75190f19fb310ddc0b93de578afdfed2",
+      "record_count": 243,
+      "compiled_clauses": 726,
+      "group_semantic_sha256": "02da50709c74938716b59146772cb1c616da4a2d36f54bef1b8e8a6c33d57954",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    },
+    {
+      "group": "app",
+      "annotation_sha256": "31a3db32dfa23a7cb68c49b7ccb8696636e33524e6be8a91b8aa03d53d1b143f",
+      "record_count": 165,
+      "compiled_clauses": 609,
+      "group_semantic_sha256": "d4877035b6b5305e33041ec3df2d767907ddf866529b62e1f43734e89ed7547c",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    },
+    {
+      "group": "web_supply",
+      "annotation_sha256": "a1fda634bed8a01d3b7f2fe032f8f0ae4e1ba8f9845fe46bdcc9ec4d03e77b93",
+      "record_count": 162,
+      "compiled_clauses": 681,
+      "group_semantic_sha256": "248d680bd2c75ec6bee980f63341373cbdae0c76c7e631a2d8922d4c0909631f",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    },
+    {
+      "group": "platform_a",
+      "annotation_sha256": "314e9061db737e5ac35f3bee6e2df99acbb368fd7366c2fd8a6774e6a7318a02",
+      "record_count": 78,
+      "compiled_clauses": 336,
+      "group_semantic_sha256": "0ef6ba64fd1b457dc56fbd557acbb7b74dfc5c2b7b5148e1fa1018247e7a4f11",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    },
+    {
+      "group": "platform_b",
+      "annotation_sha256": "47746fd8c475d9341759cabd54ce181f35997c9eec9b3467b9c206b8a233758a",
+      "record_count": 97,
+      "compiled_clauses": 361,
+      "group_semantic_sha256": "cab901cb9d1c2ef9971610701e645b80493ea10e2fe7549d33d94fa7f3bdabe1",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    },
+    {
+      "group": "governance",
+      "annotation_sha256": "bdbb72671a73ab5aaeb4e0a66ff08e8e13a5b7a22bb0b42552b8104f99273898",
+      "record_count": 76,
+      "compiled_clauses": 298,
+      "group_semantic_sha256": "025ee2af4eac9ec2c1a622f454a9b56eb030990737e0a8650ef12506bc4dd5ee",
+      "scope": "Targeted force/nature/cited context and approved split materialization; not a new full8504-line read; no runtime verification"
+    }
+  ],
+  "source_report_digests": [
+    {
+      "report_name": "ai-final.json",
+      "sha256": "17823d50892e3ab25d0e21467337f792a2fe96836ba90b363734b771a9c0bfff"
+    },
+    {
+      "report_name": "platform_a-final.json",
+      "sha256": "c7a86d5a73baf6fac57270df45a913c5e1a130037a98671b8f14131175b010ef"
+    },
+    {
+      "report_name": "platform_b-final.json",
+      "sha256": "e53117e28bb00b44804922b12f66f04c2713400ae1d5a5060bb7cfbdd55ab515"
+    },
+    {
+      "report_name": "app.json",
+      "sha256": "7c11742bba2dc55faeff57524dd429862acdc8354027fcce1f3010b687e4385e"
+    },
+    {
+      "report_name": "web_supply-typed.json",
+      "sha256": "a096ed9be929742d7b30c11968f7e0c298f16d8e267b30be3b00e91c8717a88d"
+    },
+    {
+      "report_name": "governance.json",
+      "sha256": "22726a6930c9f3cb532cdbfdb77480c46ad2d3c63f955f174ec0a81908494edf"
+    },
+    {
+      "report_name": "docs-final.json",
+      "sha256": "9c4ada1f5565a8ee034bf7af3846024f6ffff6d59366cbba10477b22197066dd"
+    },
+    {
+      "report_name": "final-package.json",
+      "sha256": "5fa63248237eb0cada15e48bf25a3554aaeb4d9c8e347a2b9f3aad40109558e5"
+    }
+  ],
+  "scope_limit": "All821 baseline entries and their2885 clause annotations targeted; cited blocks and additional context checked. This is not a repeat end-to-end reading of all8504 corpus lines, not an absolute coverage/error-free claim, not service/model/runtime testing.",
+  "archive_sha256": "bbf9b509cb85b3f4d614bb2bfe8a335a1d9be4a89c1d4afae4d098a2e5fc444c",
+  "note": "Raw final evidence and earlier histories remain in the complete external ZIP/original folder. This summary does not rerun the source audit and does not claim runtime tests. It is not a list of unresolved historical findings."
+}

@@ -1,0 +1,23 @@
+# License and attribution boundaries
+
+## Application
+
+The original SDD Security Analyzer application code and newly written application documentation are licensed under the [MIT License](LICENSE), copyright (c) 2026 Defrixx. Defrixx is the attribution already used in this project's source materials; no separate legal name is asserted here.
+
+This grant covers only material owned by the stated copyright holder and does not replace notices or licenses attached to inherited or third-party material. It permits commercial use and redistribution, including proprietary derivatives, provided the copyright and permission notice are retained. The software is provided without warranties as stated in LICENSE.
+
+## Bundled catalog and source material
+
+The pinned catalog and source prose retain **Creative Commons Attribution 4.0 International (CC BY 4.0)** and their per-record provenance. Preserve attribution to Defrixx where recorded, the license/source links, and modification notices. See the unchanged [upstream license boundaries](sources/LICENSE.upstream) and the origin/license/source-reference fields in the catalog.
+
+The MIT license for the application does not relicense `catalog/`, `sources/`, inherited catalog provenance under `qa/`, or original handoff fixtures/templates. Their existing per-file, per-record, upstream, and third-party terms continue to apply. No license is invented for material whose metadata does not state one. User-authored documents, imported policies, project data, and model outputs are not licensed by the application LICENSE.
+
+## Dependencies and redistributed artifacts
+
+Dependencies retain their own licenses. Runtime Python dependencies include MIT, BSD-3-Clause, Apache-2.0, PSF-2.0, and MPL-2.0 components. The UI has no runtime npm dependencies.
+
+MPL-licensed components, including certifi, retain their file-level licensing and any applicable source-availability requirements when distributed. Their presence does not replace the license of separate original application files.
+
+Keep dependency license files, copyright notices, and any required NOTICE/source-availability information when redistributing wheels, binaries, offline bundles, or container images. Base-image and operating-system packages have their own terms. This document identifies boundaries; it is not a complete license audit or a replacement for the actual dependency licenses.
+
+Official terms: [MIT](https://opensource.org/license/mit), [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), and [MPL 2.0](https://www.mozilla.org/en-US/MPL/2.0/).

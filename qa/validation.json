@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "errors": [],
+  "record_count": 821,
+  "active_records": 820,
+  "all_record_content_hashes_match": true,
+  "metadata_only_tolerance": [
+    "review.ledger_refs",
+    "normativity_review.report_refs"
+  ],
+  "draft_template_expected_errors": 9,
+  "json_yaml_roundtrip": true,
+  "catalog_sha256": "855da895d4fc517d1a37c43f9808b8747fddf7e77098410d89ea00f5d811b059",
+  "scope": "Selected JSONSchema constraints plus data/source/link/content integrity. Not general JSONSchema conformance, not source-corpus reread, not service/runtime tests."
+}

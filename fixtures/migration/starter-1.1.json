@@ -1,0 +1,2436 @@
+{
+  "schema_version": "1.1",
+  "catalog_id": "psh-starter-selected-controls",
+  "catalog_version": "2026.11.04.1",
+  "title": "Product Security Hub — стартовый набор выбранных контролей",
+  "origin": {
+    "repository": "https://github.com/defrixx/defrixx.github.io",
+    "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+    "source_kind": "clean_local_source_markdown_verified_public_commit",
+    "prepared_at": "2026-11-04",
+    "license": "CC-BY-4.0",
+    "attribution": "Defrixx, Product Security Playbook, 2026",
+    "license_notice_path": "LICENSE"
+  },
+  "coverage": {
+    "complete_hub_coverage": false,
+    "selection": "CODE 3.1/3.3/3.5/3.6 configuration bullets; API 5.1 controls; MCP 3.1 baseline and 3.3 tools/resources/prompts. Other sections and all other playbooks excluded.",
+    "source_documents_selected": 3,
+    "inventoried_ru_playbook_checklist_documents": 22,
+    "requirements_count": 53,
+    "inventory": [
+      {
+        "path": "content/ai-security/agentic-ai/playbook.ru.md",
+        "sha256": "e936b979c950733dda4bc5ea7ee6325c910031b14fdaa0f64a7d1f24789990ca",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/ai-security/ai-assisted-development/playbook.ru.md",
+        "sha256": "28e1cac82f513f0e6f440114ff45e6ff320ddc6462ad5cdc572f63cc2b591c68",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "coverage": "selected_sections_only"
+      },
+      {
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "coverage": "selected_sections_only"
+      },
+      {
+        "path": "content/application-security/business-logic/business-logic-abuse/playbook.ru.md",
+        "sha256": "b805d23e228f5b923e642e57dee8d995902be35be2621a25697d302310adb8d3",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/application-security/identity/oidc-oauth/playbook.ru.md",
+        "sha256": "668b667999b0b1cf22efec445360409b94dae3246641d0190cc587669d4e258f",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "coverage": "selected_sections_only"
+      },
+      {
+        "path": "content/application-security/web/browser-security/playbook.ru.md",
+        "sha256": "d92fe3135cfb8145bc0adc84a2ee350908d9f9d94fa26863d6f4a41634683637",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/application-security/web/owasp-top-10/playbook.ru.md",
+        "sha256": "af43c022c2a7564f25f2c1d88e91419cfd9eb71056f1ac59972253dd5994a260",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/cloud-iam-workload-identity/playbook.ru.md",
+        "sha256": "9086776665701e35c8d5e310d6fa6aa973c5739a29b75646440c516ca2b1d93b",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/kubernetes/adversarial-validation/playbook.ru.md",
+        "sha256": "61ca6c53c7d6424b10eafb315fb8f8cb87d0e3f89893100ff9edca423fa18688",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/kubernetes/cluster-security-review/playbook.ru.md",
+        "sha256": "bf687ac33f74650fa120cc6001c72d5a9668e40a0327558b16f06dea7c47a0f2",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/kubernetes/pod-security/playbook.ru.md",
+        "sha256": "f9db91ea90bd15986d45ca2a2eb949526472f801a3b0ffb927630c1cd7b8eb97",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/kubernetes/seccomp/checklist.ru.md",
+        "sha256": "74bf4d2b55485292c81507da5755a6692923c2816a34a21351f5ce169dd78472",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/kubernetes/secrets/playbook.ru.md",
+        "sha256": "2e558ff4add3a6547629247c411aa37213b813f7d622788ecd33f2642c90e9c8",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/platform-security/secrets/vault/playbook.ru.md",
+        "sha256": "61b61d614a4ae940c51e702b9aa68d6cfa8c8179b7060d16c4f09f804c05a064",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/review/architecture/checklist.ru.md",
+        "sha256": "71a420fb517547f8352bea89bf12cac4e623769b21d0f286bcc77dc1c27f85fd",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/review/release-governance/playbook.ru.md",
+        "sha256": "b722e9fd1e0f8d5e71e64fa2680c6fd47ac403147fdd4cfd567f103eae3968b4",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/review/threat-modeling/playbook.ru.md",
+        "sha256": "4046e2709edc211194b17a222d30512590634864d3bf479af130f0627fcd5804",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/review/vulnerability-management/playbook.ru.md",
+        "sha256": "7f1f0c58deb972f1501eb69ffbbe52b52342fea3d9f9185be0ca1e83d13f2a7a",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/supply-chain/ci-cd-security/playbook.ru.md",
+        "sha256": "ed62eda7ac660d1f8c00fbad193d71038707549cd4ebe5de77f5e99004085b3e",
+        "coverage": "not_selected"
+      },
+      {
+        "path": "content/supply-chain/container-image-security/playbook.ru.md",
+        "sha256": "e51ac0cc8b5990ca6e1bed64b05c723a60434f3b39da23797d43acb7c9d7065a",
+        "coverage": "not_selected"
+      }
+    ],
+    "excluded_materials": "Generated site copies, EN duplicates, references, overviews, third-party quotations and all unselected sections. No inference of full normative coverage."
+  },
+  "requirements": [
+    {
+      "id": "PSH-CODE-9C4FD804CC",
+      "version": "1.0",
+      "title": "3.1 Проверка входных данных и приведение к каноническому виду — Проверяйте все недоверенные входные данные на сервере до выполне",
+      "statement": "Проверяйте все недоверенные входные данные на сервере до выполнения бизнес-логики, сохранения, построения запросов или вызова зависимых систем.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает недоверенные входные данные; определить применимость каждого пункта по соответствующим полям и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.1 Проверка входных данных и приведение к каноническому виду",
+        "line_start": 53,
+        "line_end": 53,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L53",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "8a3b5d3f991d628ecae62e0b25ed103b916be8c0200a238813bf9c32c4ac55b3",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-38E8512192",
+      "version": "1.0",
+      "title": "3.1 Проверка входных данных и приведение к каноническому виду — Для каждого поля под внешним контролем задавайте тип, длину, фор",
+      "statement": "Для каждого поля под внешним контролем задавайте тип, длину, формат, кодировку, диапазон, допустимые значения перечисления и правила владения объектом.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает недоверенные входные данные; определить применимость каждого пункта по соответствующим полям и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.1 Проверка входных данных и приведение к каноническому виду",
+        "line_start": 54,
+        "line_end": 54,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L54",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "bc878f222c3285f6fdfc97866a0c4abfbd43cdaa33a807e93f3efcdfb09144d4",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-6A496D6CF1",
+      "version": "1.0",
+      "title": "3.1 Проверка входных данных и приведение к каноническому виду — Приводите данные к каноническому виду до проверки, если допустим",
+      "statement": "Приводите данные к каноническому виду до проверки, если допустимы разные кодировки, форматы путей или эквивалентные представления одного значения.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает недоверенные входные данные; определить применимость каждого пункта по соответствующим полям и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.1 Проверка входных данных и приведение к каноническому виду",
+        "line_start": 55,
+        "line_end": 55,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L55",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "e89f620806de8aa713ce1c8f9dd8b15922a0f92fb852b0bd67c7f5501d64e4be",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-C0EB3C8F76",
+      "version": "1.0",
+      "title": "3.1 Проверка входных данных и приведение к каноническому виду — Задавайте списки разрешенных идентификаторов, значений перечисле",
+      "statement": "Задавайте списки разрешенных идентификаторов, значений перечислений, ключей сортировки, полей, адресов перенаправления и обратного вызова, типов MIME и расширений файлов.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает недоверенные входные данные; определить применимость каждого пункта по соответствующим полям и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.1 Проверка входных данных и приведение к каноническому виду",
+        "line_start": 56,
+        "line_end": 56,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L56",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "8076929a5e0a8ca1eb210eddaca4bcba5daac725c038dfe9541baf3a0d1a2039",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-168CCF21E3",
+      "version": "1.0",
+      "title": "3.1 Проверка входных данных и приведение к каноническому виду — По умолчанию отклоняйте данные, не прошедшие валидацию. Молчалив",
+      "statement": "По умолчанию отклоняйте данные, не прошедшие валидацию. Молчаливая нормализация допустима только если владелец продукта и специалист по безопасности согласны, что неоднозначность не может изменить авторизацию, цену, состояние или выборку данных.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает недоверенные входные данные; определить применимость каждого пункта по соответствующим полям и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.1 Проверка входных данных и приведение к каноническому виду",
+        "line_start": 57,
+        "line_end": 57,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L57",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "e5378be304f0a43445e74492994ecb6cd453be6fcdc9adb863a220a042592ac6",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-4B59D8AE10",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — Проверки аутентификации и сессий выполняются на сервере; при их ",
+      "statement": "Проверки аутентификации и сессий выполняются на сервере; при их отказе операция запрещается.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 82,
+        "line_end": 82,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L82",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "da339623c3a9993c0ff642be645e86d527c1252bb94cbd58beec6abd5189f65b",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-02C82477C6",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — Идентификаторы сессии ротируются после входа, изменения привилег",
+      "statement": "Идентификаторы сессии ротируются после входа, изменения привилегий, восстановления и чувствительных изменений учетной записи.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 83,
+        "line_end": 83,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L83",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "d225b3698b23931c5193893f83a29981075c5ec61eb4f839c514d9182e94e64d",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-71261221E5",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — Применяйте авторизацию для каждого объекта и перехода состояния ",
+      "statement": "Применяйте авторизацию для каждого объекта и перехода состояния на уровне сервиса или предметной области, а не только в маршрутизации, интерфейсе или правилах шлюза.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 84,
+        "line_end": 84,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L84",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "64deea2ed00a790d03f76bd5c9bd286928119ea52f30093d55a35f5068585b7d",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-CE1294BDB7",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — При принятии решения учитывайте владельца ресурса, принадлежност",
+      "statement": "При принятии решения учитывайте владельца ресурса, принадлежность пользователя к тенанту, роль, область разрешений и контекст политики. Действительный токен или сессия сами по себе не подтверждают право на действие.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 85,
+        "line_end": 85,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L85",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "eb9c250e469771f3d585f3ceea2abefae2fad3ee7c6b69c2b2b960bc84d238a8",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-11BDCB01D2",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — Привилегированные действия с серьезными последствиями требуют до",
+      "statement": "Привилегированные действия с серьезными последствиями требуют дополнительной аутентификации или явного согласования: административные изменения, выплаты и платежи, массовый экспорт, разрушительные действия, работа поддержки от имени пользователя и выдача разрешений.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 86,
+        "line_end": 86,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L86",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "797f25e13787d67c2183d0eb5ff7bba3789f2190e263d9f352ec9e5121c41132",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-4CEFC009AE",
+      "version": "1.0",
+      "title": "3.3 Аутентификация, сессии и контроль доступа — Для аутентификации пользователей, проверки passkeys, смены факто",
+      "statement": "Для аутентификации пользователей, проверки passkeys, смены факторов и восстановления применяйте раздел 6.7 [плейбука OIDC/OAuth](../../identity/oidc-oauth/playbook.ru.md). Проверяйте серверные механизмы контроля контекста аутентификации и каждый резервный сценарий; одного запроса в интерфейсе недостаточно для обеспечения надежности аутентификации.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует аутентификацию, сессии или контроль доступа; конкретные сценарии пункта должны присутствовать в продукте.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.3 Аутентификация, сессии и контроль доступа",
+        "line_start": 87,
+        "line_end": 87,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L87",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "eb07930216904baa883c6a79bde6eb82c03c7014f7741497fe1ac54cba4607c2",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-D4BCCEA0ED",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — При загрузке файлов должны принудительно применяться ограничения",
+      "statement": "При загрузке файлов должны принудительно применяться ограничения размера и расширений, проверки MIME-типа и содержимого, проверка на вредоносное ПО там, где она применима, случайные серверные имена и хранение вне исполняемых веб-каталогов.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 111,
+        "line_end": 111,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L111",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "035893daec08be8beeeccefce72817877bfca9ae853dcf9e3ff99afd6b2339ae",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-73C049B1A6",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Для каждого маршрута загрузки задавайте максимальный размер файл",
+      "statement": "Для каждого маршрута загрузки задавайте максимальный размер файла и тела multipart-запроса, число файлов, допустимые типы содержимого, класс и срок хранения, правила карантина и тайм-аут асинхронного сканирования.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 112,
+        "line_end": 112,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L112",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "a092ad87185eb6e3fe275578a33c46207d79f04078cf4ac97fec14e8b7d4ba9c",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-E210117A4F",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Отдавайте загруженное содержимое с безопасным `Content-Type`, за",
+      "statement": "Отдавайте загруженное содержимое с безопасным `Content-Type`, заголовком `Content-Disposition: attachment`, если встроенное отображение не требуется, и `X-Content-Type-Options: nosniff`. Политика кеширования должна соответствовать классу данных.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 113,
+        "line_end": 113,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L113",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "d5dab42911ffb3c0eb52a5683ad02419667e667196d9b638fd71993a6e86e201",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-BE22E0BB95",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Проверяйте файлы на вредоносное содержимое и соответствие полити",
+      "statement": "Проверяйте файлы на вредоносное содержимое и соответствие политике до обработки в доверенной среде или предоставления широкого доступа. Ошибки сканирования, тайм-ауты и неопределенные результаты для файлов высокого риска должны блокировать обработку и направлять файл в карантин или на ручную проверку.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 114,
+        "line_end": 114,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L114",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "ab54dda4b05b7f60f9341a374a8e86321e8086f70724272bf0f58f855f5cc40e",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-248BFB4E65",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Для изображений отдельно ограничивайте ширину, высоту, суммарное",
+      "statement": "Для изображений отдельно ограничивайте ширину, высоту, суммарное число декодированных пикселей по всем кадрам, число кадров, CPU, RAM, временное дисковое пространство и время обработки. Размер сжатого файла не ограничивает затраты декодирования. Значения выбирайте по допустимым форматам и нагрузочному тесту; отклоняйте превышение до выделения ресурсов, где это позволяет декодер, и принудительно ограничивайте процесс обработки.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 115,
+        "line_end": 115,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L115",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "727ae4b9847e66318a8078e28fadedc72254f5f82e78b4b9c1ef5a8662d0a354",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-AE3AC3731E",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Декодируйте изображение и заново кодируйте его в разрешенный рас",
+      "statement": "Декодируйте изображение и заново кодируйте его в разрешенный растровый формат в изолированном процессе без сетевого доступа, с минимальными правами и актуальными библиотеками и кодеками. Отключайте ненужные форматы и внешние обработчики. Ошибки декодирования блокируют публикацию; перекодирование дополняет остальные проверки и не делает сам декодер безопасным.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 116,
+        "line_end": 116,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L116",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "bfca318109c923bfb25d613b41cefef503f7ae07af321833f3ce80bb299bbdcd",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-CF6EEAF590",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Задайте политику метаданных: по умолчанию удаляйте EXIF/GPS и др",
+      "statement": "Задайте политику метаданных: по умолчанию удаляйте EXIF/GPS и другие ненужные сведения из выдаваемых изображений, применив ориентацию до удаления метаданных. Необходимые профили цвета и метаданные сохраняйте только по явному списку; доступ к оригиналу с метаданными регулируется отдельно.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 117,
+        "line_end": 117,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L117",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "0c1683b0be3f1c392221426ebfdc4a615cd50f5c4a9d8e2b617f606b49cfcd87",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-523EB45C4D",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — SVG по умолчанию отклоняется, если продукту он не нужен. При под",
+      "statement": "SVG по умолчанию отклоняется, если продукту он не нужен. При поддержке SVG используйте отдельный проверенный процесс очистки или растеризации с запретом скриптов, внешних ресурсов и опасных XML-возможностей. Исходный SVG не публикуется как доверенное встроенное содержимое; изоляцию выдачи проверяйте по плейбуку безопасности браузера.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 118,
+        "line_end": 118,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L118",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "83dd884755a0fceef69d2eb850967354af23cb5ecfc6421f18af589702cc98e4",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-AF14555EB9",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Защищайте распаковку от обхода каталогов, абсолютных путей, симв",
+      "statement": "Защищайте распаковку от обхода каталогов, абсолютных путей, символических и жестких ссылок, специальных файлов, архивных бомб, вложенного сжатия, избыточного числа файлов и длины путей, а также перезаписи существующих файлов. Распаковывайте в изолированном рабочем каталоге с лимитами итогового размера и коэффициента распаковки.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 119,
+        "line_end": 119,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L119",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "a3b42d3f3dab79d97c1a3d19c2d22abac897113879ac1f5431fd2b3492bfcdd7",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-17F69E9FE8",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Серверные обращения по URL используют разрешенные схемы и адреса",
+      "statement": "Серверные обращения по URL используют разрешенные схемы и адреса назначения, проверку результатов DNS, блокировку диапазонов IP и сетей метаданных, а также ограничения перенаправлений, времени ожидания и размера ответа.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 120,
+        "line_end": 120,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L120",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "c407798ae4b0a0963c2ef67c2c292eb23d07aee3b2bae290d941b8436cfbb952",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-8C3F805DB9",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Для DNS-имен учитывайте rebinding: выполняйте разрешение имен че",
+      "statement": "Для DNS-имен учитывайте rebinding: выполняйте разрешение имен через доверенные DNS-резолверы, применяйте списки разрешенных значений к итоговым IP-адресам, повторяйте проверку после изменения адреса назначения и предпочитайте egress-прокси или сетевую политику для компонентов с высоким риском, выполняющих внешние запросы.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 121,
+        "line_end": 121,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L121",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "a0b4c64443568d269fb716cbdf2f390f15f3e8f41b3333e20d8450295d709dca",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-DC5CA8AA2C",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Защита от SSRF проверяет исходную схему, имя узла, порт и каждый",
+      "statement": "Защита от SSRF проверяет исходную схему, имя узла, порт и каждый результат A/AAAA перед каждым подключением. Перенаправления по умолчанию отключены; для разрешенных переходов проверка повторяется до подключения, а учетные данные не передаются другому источнику. Внутренние интерфейсы управления требуют явного разрешения даже с публичными IP. Блокируйте localhost, loopback, link-local, облачные метаданные, частные, multicast и другие немаршрутизируемые диапазоны, если адрес не является явно утвержденной внутренней интеграцией.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 122,
+        "line_end": 122,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L122",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "99851a95b9cc57f4865e2f5bf5394d92ead147e29f6601fa2a47ea56206ef0c8",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-46037EC7B9",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Связывайте фактическое подключение с проверенным IP без повторно",
+      "statement": "Связывайте фактическое подключение с проверенным IP без повторного непроверенного разрешения DNS либо обеспечивайте эквивалентную гарантию через прокси исходящего доступа. Сетевые ограничения создают дополнительную границу защиты.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 123,
+        "line_end": 123,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L123",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "ec3f697b7a075f8779b2acc6997b11fb68fa98a02d89b271adfd9078c3908179",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-2AE28DA4C8",
+      "version": "1.0",
+      "title": "3.5 Работа с файлами и внешними запросами — Не разрешайте загруженному содержимому запускать дополнительные ",
+      "statement": "Не разрешайте загруженному содержимому запускать дополнительные запросы, анализаторы, распаковку или обработку шаблонов без повторной проверки для нового потребителя. Обработчики webhook и импорта сохраняют точное подписанное представление по контракту провайдера. До проверки подписи допустим только ограниченный разбор, необходимый схеме подписи; бизнес-обработка начинается после успешной проверки.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт принимает файлы или выполняет серверные сетевые запросы; отдельные пункты применимы только к указанным форматам и обработчикам.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.5 Работа с файлами и внешними запросами",
+        "line_start": 124,
+        "line_end": 124,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L124",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "c1ec6a76685251448b2bd760dfc05d0c27ea0fc5067eff183e1fb366d2e9f42b",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-BE8D5FEEDF",
+      "version": "1.0",
+      "title": "3.6 Журналирование, ошибки и конфиденциальность — Записывайте идентификатор корреляции, субъекта, тенанта, объект,",
+      "statement": "Записывайте идентификатор корреляции, субъекта, тенанта, объект, действие, результат и причину там, где это помогает расследованию.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт ведёт журналы или возвращает ошибки; учесть класс данных и применимые события.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.6 Журналирование, ошибки и конфиденциальность",
+        "line_start": 139,
+        "line_end": 139,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L139",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "491c8e9bf88773ad4c8c845d6a61c9fb6a6154a53871a709ab92400194d62a0a",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-80DDFD4B5C",
+      "version": "1.0",
+      "title": "3.6 Журналирование, ошибки и конфиденциальность — Журналы не должны содержать пароли, идентификаторы сессий, токен",
+      "statement": "Журналы не должны содержать пароли, идентификаторы сессий, токены обновления и доступа, закрытые ключи, исходные заголовки авторизации, токены сброса, платежные секреты или избыточные персональные данные.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт ведёт журналы или возвращает ошибки; учесть класс данных и применимые события.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.6 Журналирование, ошибки и конфиденциальность",
+        "line_start": 140,
+        "line_end": 140,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L140",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "9c7895961a5ed540b697deb5fdabc3e8d344fafa66ee3bf90c8f44f43ff511c7",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-66F2D3C095",
+      "version": "1.0",
+      "title": "3.6 Журналирование, ошибки и конфиденциальность — Ответы об ошибках должны помогать законным клиентам, не раскрыва",
+      "statement": "Ответы об ошибках должны помогать законным клиентам, не раскрывая трассировки стека, внутренние пути, фрагменты SQL, имена секретов или существование учетной записи.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт ведёт журналы или возвращает ошибки; учесть класс данных и применимые события.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.6 Журналирование, ошибки и конфиденциальность",
+        "line_start": 141,
+        "line_end": 141,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L141",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "146146341a1fca40e9acc3ad67ca05aa7cc06aeed19abd0528ebd7309688ff7b",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-CODE-681C21D627",
+      "version": "1.0",
+      "title": "3.6 Журналирование, ошибки и конфиденциальность — Значимые для безопасности отказы создают наблюдаемые события: от",
+      "statement": "Значимые для безопасности отказы создают наблюдаемые события: отказ авторизации, отклонение входных данных, подозрительная загрузка, блокировка SSRF, ошибка проверки токена и попытка обхода политики.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт ведёт журналы или возвращает ошибки; учесть класс данных и применимые события.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "code"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+        "section": "3.6 Журналирование, ошибки и конфиденциальность",
+        "line_start": 142,
+        "line_end": 142,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/secure-coding/code-review/playbook.ru.md#L142",
+        "source_sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+        "source_text_sha256": "85440498b8d35e0ca2c99f026fedce28dd98e2a80e22a4c9da6a9479c11acea0",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-8690A8FCB7",
+      "version": "1.0",
+      "title": "3.1 Реестр MCP / registry — Ведите единый реестр утвержденных серверов, инструментов, ресурс",
+      "statement": "Ведите единый реестр утвержденных серверов, инструментов, ресурсов, шаблонов, транспортов, владельцев, сред, разрешений, целевых систем и сроков пересмотра.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.1 Реестр MCP / registry",
+        "line_start": 59,
+        "line_end": 59,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L59",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "83655361aadd5d129fb47a06837b33b5009d06ac788f538aa03c525c854fb175",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-7BE86B541A",
+      "version": "1.0",
+      "title": "3.1 Реестр MCP / registry — Для каждого сервера фиксируйте утвержденный набор возможностей: ",
+      "statement": "Для каждого сервера фиксируйте утвержденный набор возможностей: имена и описания инструментов, входные схемы, шаблоны URI ресурсов, идентификаторы шаблонов сообщений (`prompts`), транспорт, режим аутентификации, идентификатор пакета или артефакта и ожидаемые поля журнала.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.1 Реестр MCP / registry",
+        "line_start": 60,
+        "line_end": 60,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L60",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "eb988a3e52621da1586161f96772c7ed914670ce3c2cc820e81eb2c74d88b558",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-9A27C3D8D2",
+      "version": "1.0",
+      "title": "3.1 Реестр MCP / registry — Новый инструмент, ресурс, шаблон, расширение схемы или URI, смен",
+      "statement": "Новый инструмент, ресурс, шаблон, расширение схемы или URI, смена транспорта или авторизации считаются изменением, влияющим на безопасность.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.1 Реестр MCP / registry",
+        "line_start": 61,
+        "line_end": 61,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L61",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "0b5b95d0ff1fbc48691c748737c29aaebbbfc190350157b6b9fc3d1c7d71c4cf",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-E9A498B419",
+      "version": "1.0",
+      "title": "3.1 Реестр MCP / registry — Незарегистрированные или измененные возможности запрещены по умо",
+      "statement": "Незарегистрированные или измененные возможности запрещены по умолчанию.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.1 Реестр MCP / registry",
+        "line_start": 62,
+        "line_end": 62,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L62",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "e20cb72c529075e87d2eb3405f4b7ab4d9370606df4dcb3f8d9ead89fcbe9dbe",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-153A4ECCC0",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Инструменты — Проверяйте параметры на сервере: тип, размер, принадлежность наб",
+      "statement": "Проверяйте параметры на сервере: тип, размер, принадлежность набору допустимых значений, путь, URL, идентификатор и ограничения, связанные с состоянием бизнес-объекта.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Инструменты",
+        "line_start": 113,
+        "line_end": 113,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L113",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "c56f4b6d78ddc01a4af93c6cb349b0f9b768f6d3f237c6b0ce24c847c2c66f22",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-9DECECA74B",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Инструменты — Применяйте авторизацию объекта, тенанта и действия в обработчике",
+      "statement": "Применяйте авторизацию объекта, тенанта и действия в обработчике или шлюзе; намерение модели и текст инструкции не дают полномочий.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Инструменты",
+        "line_start": 114,
+        "line_end": 114,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L114",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "279d40313bef875d8843b4817d608f3a156506f49ff52751002f9fa9abb8e9bd",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-B8CCAACA92",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Инструменты — Используйте отдельные инструменты для чтения и записи с независи",
+      "statement": "Используйте отдельные инструменты для чтения и записи с независимыми разрешениями и правилами согласования.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Инструменты",
+        "line_start": 115,
+        "line_end": 115,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L115",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "d89ef668492e61188110797c915dd862deee30314410cf1f421507f8e48f50c1",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-0335C9E094",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Инструменты — Для изменения состояния требуйте последовательность «предварител",
+      "statement": "Для изменения состояния требуйте последовательность «предварительный просмотр, явное подтверждение, исполнение», если нет утвержденного исключения с владельцем, сроком, планом отката и тестами злоупотребления.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Инструменты",
+        "line_start": 116,
+        "line_end": 116,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L116",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "6cf709d405c2950c827e0304d450da611579ee0c584e16f59d27245ab0c51ec4",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-AFD0D14312",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы — Ограничивайте шаблоны URI минимально необходимой областью.",
+      "statement": "Ограничивайте шаблоны URI минимально необходимой областью.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы",
+        "line_start": 119,
+        "line_end": 119,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L119",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "d29e7a8af98185858f90f92db249c6c4f9101dae8e3af051975f0d84bba4971a",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-3ABCA6E89A",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы — До передачи содержимого модели применяйте классификацию, RBAC/AB",
+      "statement": "До передачи содержимого модели применяйте классификацию, RBAC/ABAC, изоляцию тенантов, DLP и удаление чувствительных значений, а также аудит.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы",
+        "line_start": 120,
+        "line_end": 120,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L120",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "8ac446d8a4bcbc94e86a4cc70231d7b36ea0f4f5e5b5ee5b46accce3a9dd7297",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-1EF31D3DBF",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы — Считайте внешнее или управляемое пользователем содержимое недове",
+      "statement": "Считайте внешнее или управляемое пользователем содержимое недоверенным; проверяйте попытки косвенного внедрения инструкций до использования.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Ресурсы",
+        "line_start": 121,
+        "line_end": 121,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L121",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "9b9d9248af81063247ddd63d03473c3dfdd49fa5300b51e92054ece499aa02d7",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-2CB62606EA",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов — Версионируйте их и проверяйте как код или конфигурацию.",
+      "statement": "Версионируйте их и проверяйте как код или конфигурацию.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов",
+        "line_start": 124,
+        "line_end": 124,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L124",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "0831b1449c62b3b917fa678fcbfa9260f60fd199d9c70515e2b4c5759dce23db",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-45ABF27C40",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов — Не храните в объявлениях секреты, учетные данные, скрытые допуще",
+      "statement": "Не храните в объявлениях секреты, учетные данные, скрытые допущения политики, данные заказчиков или закрытые детали реализации.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов",
+        "line_start": 125,
+        "line_end": 125,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L125",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "6656639fdc9d28e6248dce104a652c12042146402b14d9c1879932afbed0ad76",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-MCP-CC84DFAC34",
+      "version": "1.0",
+      "title": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов — По умолчанию журналируйте идентификатор и версию, а не исходный ",
+      "statement": "По умолчанию журналируйте идентификатор и версию, а не исходный текст.",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт использует MCP; для инструментов, ресурсов и шаблонов отдельно подтвердить наличие соответствующей возможности и действия.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "mcp"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/ai-security/mcp-security/playbook.ru.md",
+        "section": "3.3 Инструменты, ресурсы и шаблоны / Шаблоны запросов",
+        "line_start": 126,
+        "line_end": 126,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/ai-security/mcp-security/playbook.ru.md#L126",
+        "source_sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+        "source_text_sha256": "21602b3c46ca26df1cea44414029df87f2d505ee1bafbe8d36ba57f1e1181ff4",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-1432955685",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / BOLA — Авторизация на уровне объекта для каждого чтения и записи, грани",
+      "statement": "Авторизация на уровне объекта для каждого чтения и записи, граница тенанта в политике",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Ресурсы REST, узлы GraphQL, методы gRPC. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Негативные тесты: пользователь A не читает и не меняет объект пользователя B"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / BOLA",
+        "line_start": 167,
+        "line_end": 167,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L167",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "c5c4bac745a20995cb07d07b8c272eff1b978d0877d95db6bfd92138d8851f42",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-4959BB1ED4",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / BOPLA / избыточное раскрытие данных — Авторизация на уровне поля или свойства, список разрешенных поле",
+      "statement": "Авторизация на уровне поля или свойства, список разрешенных полей DTO ответа",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Ответы REST, поля GraphQL. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Тесты отсутствия чувствительных полей для ролей без доступа"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / BOPLA / избыточное раскрытие данных",
+        "line_start": 168,
+        "line_end": 168,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L168",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "fcbcea3e84c75afb667a2f168959bdc1348f2efe164129e17732e05111386f05",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-E725BF0C8D",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / BFLA — Политика на уровне функции, запрет маршрутов по умолчанию, отдел",
+      "statement": "Политика на уровне функции, запрет маршрутов по умолчанию, отделение административных функций",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Административные эндпоинты, мутации, методы сервисов. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Тесты доступа обычного пользователя к привилегированной операции"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / BFLA",
+        "line_start": 169,
+        "line_end": 169,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L169",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "b35a7f92c32fa4fe56a793c91acb6129c8416dc2ed22ee8b0c06745941f749e1",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-D3582851C1",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Нарушение аутентификации — Потоки OAuth 2.0, усиленные согласно RFC 9700; вход OIDC по Open",
+      "statement": "Потоки OAuth 2.0, усиленные согласно RFC 9700; вход OIDC по OpenID Connect Core; проверка токенов; привязанные к отправителю токены через mTLS или DPoP по RFC 8705/RFC 9449, где используются",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Публичные, партнерские и внутренние API. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Тесты неверного издателя или получателя, истекшего токена, входа и nonce OIDC, где применимо, привязки mTLS/DPoP"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Нарушение аутентификации",
+        "line_start": 170,
+        "line_end": 170,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L170",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "2aa7b62860fa3013441c45f8ce185f158febb10b82836c909760642bb46bcfc7",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-8ECF02A585",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Исчерпание ресурсов — Ограничения частоты, размера содержимого, стоимости и глубины за",
+      "statement": "Ограничения частоты, размера содержимого, стоимости и глубины запросов, тайм-ауты",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: GraphQL, потоковый gRPC, загрузка файлов, эндпоинты поиска и списков. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Нагрузочные тесты и тесты злоупотребления, поведение 413/429, подтверждение срабатывания тайм-аута"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Исчерпание ресурсов",
+        "line_start": 171,
+        "line_end": 171,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L171",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "45a7a3643b483c3114ca8880a1404d126b06d03ca4ad54156b07202c7e2423fe",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-6E2F045C34",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Злоупотребление бизнес-процессом — Лимиты с учетом риска, контроль частоты операций, обнаружение зл",
+      "statement": "Лимиты с учетом риска, контроль частоты операций, обнаружение злоупотреблений, дополнительная аутентификация",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Регистрация, оплата, бронирование, поиск, экспорт. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Тесты злоупотребления и мониторинг чувствительных процессов"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Злоупотребление бизнес-процессом",
+        "line_start": 172,
+        "line_end": 172,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L172",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "730173123089f416125a66cecd545f822c60aebc2e1c3cf09bd3470dc9df3253",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-BB4EFF9CBE",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / SSRF через API — Список разрешенных URL, политика исходящих соединений, блокировк",
+      "statement": "Список разрешенных URL, политика исходящих соединений, блокировка IP метаданных, защита от DNS rebinding",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Содержимое webhook, загрузка по URL, импорт и экспорт. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Контрольные тесты SSRF, журналы блокировки исходящих соединений"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / SSRF через API",
+        "line_start": 173,
+        "line_end": 173,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L173",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "138a67727be7a1963db249cf7e6f45c5b42037468d7a25bc87dfce2bf00373fc",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-78273B19FE",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Ошибки конфигурации безопасности — Безопасные настройки по умолчанию, разделение окружений, сканиро",
+      "statement": "Безопасные настройки по умолчанию, разделение окружений, сканирование конфигурации",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Шлюзы, CORS, отладка, рефлексия. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Ревью конфигурации, реестр публичных эндпоинтов, проверки отладочных эндпоинтов"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Ошибки конфигурации безопасности",
+        "line_start": 174,
+        "line_end": 174,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L174",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "d96ea1457dd28bf3d0a2306168b1b0604aa243f8532d3525830a74dd5e53fd9e",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-AD4229B91D",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Недостаточная инвентаризация — Каталог API, владелец, жизненный цикл, политика вывода из эксплу",
+      "statement": "Каталог API, владелец, жизненный цикл, политика вывода из эксплуатации",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Устаревшие версии, неучтенные API. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Сверка маршрутов шлюза, спецификаций OpenAPI и фактического трафика"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Недостаточная инвентаризация",
+        "line_start": 175,
+        "line_end": 175,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L175",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "5e74755e3aba56a32159f453b941c9abf8481c58778bbd1ce099bc6199ca20cd",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    },
+    {
+      "id": "PSH-API-ADD9036E01",
+      "version": "1.0",
+      "title": "5.1 Базовая матрица угроз / Небезопасное использование сторонних API — Внешние данные считаются недоверенными, проверка схемы ответа, м",
+      "statement": "Внешние данные считаются недоверенными, проверка схемы ответа, механизм circuit breaker",
+      "severity": "medium",
+      "severity_origin": "editorial_default_not_source_ranking",
+      "status": "active",
+      "applicability": {
+        "natural_language": "Продукт предоставляет API; проверить наличие сценария: Сторонние и партнерские API. Отсутствие сведений означает unknown.",
+        "origin": "editorial_scope_requires_project_evidence",
+        "unknown_if_no_evidence": true
+      },
+      "verification": {
+        "expected_spec_evidence": [
+          "Явное описание применимого контроля с параметрами и границами ответственности."
+        ],
+        "review_checks": [
+          "Контрактные тесты и тесты некорректных ответов вызываемых систем"
+        ],
+        "origin": "source_checks_where_available_otherwise_editorial_document_review"
+      },
+      "tags": [
+        "api"
+      ],
+      "provenance": {
+        "repository": "https://github.com/defrixx/defrixx.github.io",
+        "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+        "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+        "section": "5.1 Базовая матрица угроз / Небезопасное использование сторонних API",
+        "line_start": 176,
+        "line_end": 176,
+        "url": "https://github.com/defrixx/defrixx.github.io/blob/da1369a3739f9361d99cbed00b752ea2a3044286/content/application-security/api/api-security-patterns/playbook.ru.md#L176",
+        "source_sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+        "source_text_sha256": "b24661a264a33a0e22de51599e5bdb8a0f9ecbd557c4e0fdae790bcea917d7da",
+        "transformation": "verbatim_bullet_or_table_control_without_leading_marker",
+        "normativity": "project_catalog_policy_after_user_enablement_not_external_certification"
+      },
+      "license": {
+        "spdx": "CC-BY-4.0",
+        "attribution": "Defrixx, Product Security Playbook (2026)",
+        "url": "https://creativecommons.org/licenses/by/4.0/",
+        "modifications": "Extracted and structured; title, applicability, severity and document-review metadata added."
+      }
+    }
+  ]
+}

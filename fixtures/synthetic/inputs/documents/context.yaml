@@ -1,0 +1,5 @@
+product: A
+classification: synthetic
+features:
+  mcp: false
+  private_documents: true

@@ -1,0 +1,180 @@
+{
+  "schema_version": "4.0",
+  "catalog_id": "user-synthetic-example",
+  "catalog_version": "2.0.0",
+  "title": "Заполненный синтетический пример; не активировать автоматически",
+  "ready_for_use": false,
+  "release_status": "draft",
+  "scope": "user_catalogue",
+  "domain_filter": [],
+  "origin": {
+    "kind": "user_authored",
+    "classification": "synthetic_example",
+    "external_provenance": null
+  },
+  "sources": [],
+  "requirements": [
+    {
+      "id": "USER-DEMO-DOCUMENT-AUTHZ",
+      "version": "1.0.0",
+      "title": "Серверная авторизация приватного документа",
+      "record_key": "user.demo.document-authz",
+      "legacy_ids": [],
+      "statement": "При чтении приватного документа сервис обязан на сервере проверить право текущего субъекта на запрошенный документ и отклонить запрос другого владельца без разрешения.",
+      "domain": "application-security",
+      "subdomain": "authorization",
+      "origin": {
+        "kind": "user_authored",
+        "author": "Синтетический пример пользователя",
+        "created_at": "2026-11-04",
+        "embedded_source": "При чтении приватного документа сервис обязан на сервере проверить право текущего субъекта на запрошенный документ и отклонить запрос другого владельца без разрешения.",
+        "external_provenance": null,
+        "license": null,
+        "classification": "synthetic_example"
+      },
+      "source_kind": "mandatory",
+      "level": "implementation",
+      "severity": "unrated",
+      "status": "active",
+      "source_refs": [
+        {
+          "id": "s1",
+          "line_start": 1,
+          "line_end": 1,
+          "quote": "При чтении приватного документа сервис обязан на сервере проверить право текущего субъекта на запрошенный документ и отклонить запрос другого владельца без разрешения."
+        }
+      ],
+      "source_context": {
+        "heading_path": [
+          "Синтетическая политика сервиса документов"
+        ],
+        "profile": "Пример собственной политики; не требование Hub и не готовая политика пользователя",
+        "framing_ref_ids": [
+          "s1"
+        ],
+        "qualifier_ref_ids": [
+          "s1"
+        ]
+      },
+      "applicability": {
+        "predicates": [
+          {
+            "id": "private-read",
+            "text": "Продукт предоставляет операцию чтения приватных документов с разграничением доступа между владельцами",
+            "evidence": [
+              "Описание data model и операции чтения; наличие готового ACL не является условием"
+            ],
+            "source_ref_ids": [
+              "s1"
+            ]
+          }
+        ],
+        "expression": {
+          "predicate": "private-read"
+        },
+        "unknown_when": "Не установлено, есть ли приватные документы и операция их чтения. Если они известны, отсутствие ACL design — not_addressed."
+      },
+      "clauses": [
+        {
+          "id": "c1",
+          "obligation": "При каждом чтении сервер проверяет субъект→документ право и отклоняет неразрешённый cross-owner доступ",
+          "source_ref_ids": [
+            "s1"
+          ]
+        }
+      ],
+      "clause_logic": {
+        "clause": "c1"
+      },
+      "verification": {
+        "specification": {
+          "inputs": [
+            "Описание операции чтения и ownership",
+            "Проект серверной проверки доступа, если он описан"
+          ],
+          "steps": [
+            {
+              "id": "v1",
+              "action": "Найти чтение приватного документа и установить субъект, document ID и ownership boundary.",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Ссылка на операцию и правило владения"
+            },
+            {
+              "id": "v2",
+              "action": "Проверить явное серверное правило разрешения/отказа для своего и чужого документа; если такого решения нет, отметить not_addressed.",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Проверяемый server-side authorization contract и ожидаемый отказ"
+            }
+          ],
+          "outcome_conditions": {
+            "satisfied_by_spec": "Явно описаны серверная проверка права и отказ неразрешённому чужому владельцу.",
+            "contradicted_by_spec": "Проект явно разрешает чтение чужого документа по одному ID или полагается только на скрытие кнопки.",
+            "not_addressed": "Private read существует, но серверная авторизация не описана.",
+            "unknown": "Неясны privacy/ownership/операция чтения либо источники конфликтуют."
+          }
+        },
+        "source_level": {
+          "inputs": [
+            "Код/конфигурация серверного enforcement",
+            "Результаты синтетических owner/cross-owner тестов, если предоставлены"
+          ],
+          "steps": [
+            {
+              "id": "i1",
+              "action": "Проследить серверный обработчик до проверки права конкретного субъекта на document ID.",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Enforcement location до выдачи содержимого"
+            },
+            {
+              "id": "i2",
+              "action": "Проверить предоставленные результаты: владелец получает свой документ, другой субъект без разрешения получает отказ. Никакие тесты автоматически не запускать.",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Синтетические positive/negative evidence с одинаковой версией приложения"
+            }
+          ],
+          "pass_when": "Фактические код/тестовые свидетельства подтверждают server-side allow/deny для нужной версии.",
+          "fail_when": "Фактическое evidence подтверждает выдачу чужого приватного документа без разрешения.",
+          "unknown_when": "Нет фактического code/test evidence; implementation остаётся not_verified, применимость не отменяется."
+        },
+        "execution_policy": "plan_only_no_automatic_execution",
+        "spec_only_implementation_state": "not_verified"
+      },
+      "review": {
+        "status": "example_only",
+        "content_sha256": "4727af1b54b02ae2ac65637b0cecedd032a9e0eaf25a15458ff17fe5b723b82f",
+        "ledger_refs": []
+      },
+      "classification_status": "normative",
+      "clause_normativity": {
+        "c1": {
+          "force": "required",
+          "nature": "technical_control",
+          "source_ref_ids": [
+            "s1"
+          ],
+          "basis": "Собственная синтетическая политика прямо требует серверной проверки права и отказа при неразрешённом чтении. Это пользовательское правило, не цитата Hub.",
+          "qualifiers": [
+            "Только операция чтения приватного документа с разграничением доступа в синтетическом примере; скачивание не принимает policy автоматически."
+          ],
+          "evidence_level": "implementation"
+        }
+      },
+      "normativity_review": {
+        "status": "example_only",
+        "annotation_sha256": "f23bf6420577037b56426e716a33489e729f9b34f2e1f7290cb2c584dd60bdb9",
+        "report_refs": []
+      }
+    }
+  ],
+  "limitations": [
+    "Синтетический формат для обучения/round-trip. Не нормативный набор Hub. Пользователь должен задать собственную политику и область перед активацией."
+  ]
+}

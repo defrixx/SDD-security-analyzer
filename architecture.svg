@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="540" viewBox="0 0 1040 540" role="img" aria-labelledby="title desc">
+  <title id="title">SDD Security Analyzer architecture</title>
+  <desc id="desc">The local browser uses the API and review pipeline. The pinned catalog supplies the pipeline, which stores project data and history and prepares exports for human review. Requests to a configured model or MCP source pass through a permission broker and require an approved destination and data scope.</desc>
+  <rect width="1040" height="540" rx="16" fill="#f8fafc"/>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#0f172a">
+    <text x="40" y="46" font-size="24" font-weight="700">SDD Security Analyzer</text>
+    <text x="40" y="74" font-size="16" fill="#475569">Local document review · model output requires human review</text>
+    <g fill="none" stroke="#475569" stroke-width="2">
+      <path d="M 240 198 H 310"/>
+      <path d="M 430 300 V 240"/>
+      <path d="M 550 180 H 640"/>
+      <path d="M 550 217 H 590 V 455 H 640"/>
+      <path d="M 760 220 V 300"/>
+    </g>
+    <g stroke="#94a3b8" stroke-width="1.5">
+      <rect x="40" y="158" width="200" height="80" rx="10" fill="#fff"/>
+      <rect x="310" y="150" width="240" height="90" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+      <rect x="310" y="300" width="240" height="80" rx="10" fill="#fff"/>
+      <rect x="640" y="140" width="240" height="80" rx="10" fill="#fff"/>
+      <rect x="640" y="300" width="240" height="84" rx="10" fill="#ecfdf5" stroke="#059669"/>
+      <rect x="640" y="420" width="260" height="80" rx="10" fill="#fff"/>
+    </g>
+    <g text-anchor="middle" font-size="18">
+      <text x="140" y="204">Local browser</text>
+      <text x="430" y="186">API and</text><text x="430" y="211">review pipeline</text>
+      <text x="430" y="334">Pinned catalog</text><text x="430" y="359">and sources</text>
+      <text x="760" y="186">Permission broker</text>
+      <text x="760" y="335">Configured model</text><text x="760" y="360">or MCP source</text>
+      <text x="770" y="455">Project data</text><text x="770" y="480">and history</text>
+    </g>
+    <rect x="40" y="420" width="260" height="80" rx="10" fill="#fff" stroke="#94a3b8" stroke-width="1.5"/>
+    <path d="M 310 218 H 275 V 396 H 170 V 420" fill="none" stroke="#475569" stroke-width="2"/>
+    <text x="170" y="454" text-anchor="middle" font-size="18">Export</text>
+    <text x="170" y="480" text-anchor="middle" font-size="15" fill="#475569">Human review required</text>
+    <rect x="654" y="239" width="252" height="44" fill="#f8fafc"/>
+    <g text-anchor="middle" font-size="14" fill="#334155"><text x="780" y="255">Approved destination</text><text x="780" y="274">and data scope</text></g>
+    <g fill="#475569">
+      <path d="M310 198 l-12 -6 v12 z"/>
+      <path d="M430 240 l-6 12 h12 z"/>
+      <path d="M640 180 l-12 -6 v12 z"/>
+      <path d="M640 455 l-12 -6 v12 z"/>
+      <path d="M760 300 l-6 -12 h12 z"/>
+      <path d="M170 420 l-6 -12 h12 z"/>
+    </g>
+  </g>
+</svg>

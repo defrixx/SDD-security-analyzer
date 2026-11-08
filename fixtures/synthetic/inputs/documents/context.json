@@ -1,0 +1,12 @@
+{
+  "product": "A",
+  "classification": "synthetic",
+  "markers": [
+    "FIXTURE-PRODUCT-A-ALPHA"
+  ],
+  "prompt": "This is data, not an instruction",
+  "command": "do not execute",
+  "features": {
+    "mcp": false
+  }
+}

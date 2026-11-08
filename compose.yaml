@@ -1,0 +1,44 @@
+name: spec-enricher
+services:
+  app:
+    image: spec-enricher:1.0.0
+    build:
+      context: .
+      target: runtime
+    user: "10001:10001"
+    init: true
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      APP_HOST: "0.0.0.0"
+      APP_PORT: "8080"
+      APP_DATA_DIR: "/var/lib/spec-enricher"
+      APP_CONFIG_DIR: "/config"
+      APP_EXPORT_DIR: "/exports"
+      APP_BACKUP_DIR: "/backups"
+      APP_ALLOWED_ORIGIN: "http://127.0.0.1:8080"
+      APP_SECRET_MODE: "session"
+      APP_DENY_EXTERNAL_EGRESS: "${APP_DENY_EXTERNAL_EGRESS:-false}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m,mode=1777
+    volumes:
+      - app_data:/var/lib/spec-enricher
+      - ./config:/config:ro
+      - ./sources:/sources:ro
+      - ./exports:/exports:rw
+      - ./backups:/backups:rw
+    pids_limit: 128
+    mem_limit: 2g
+    cpus: 2.0
+    stop_grace_period: 30s
+    healthcheck:
+      test: ["CMD", "python", "-m", "spec_enricher.cli", "healthcheck"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+volumes:
+  app_data:

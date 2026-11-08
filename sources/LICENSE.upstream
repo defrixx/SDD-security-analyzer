@@ -1,0 +1,22 @@
+# License boundaries
+
+Copyright (c) 2026 Defrixx, for original work owned by Defrixx.
+
+Original playbooks, articles, diagrams and prose templates in content/, reference/
+and downloads/ are licensed under Creative Commons Attribution 4.0 International
+(CC BY 4.0): https://creativecommons.org/licenses/by/4.0/legalcode.en
+Generated copies of those materials retain the same license.
+Credit Defrixx, link to the source and license, and indicate modifications.
+
+Original site code, scripts, configuration and example code (including code blocks
+intended for execution) are licensed under MIT; see LICENSE-MIT.
+This grant applies to copyright held by Defrixx only.
+
+Product-security-skills is a separate repository. Its complete skill packages,
+including internal instructions and templates, and its tools use that repository's
+MIT license. Retain its license notice when redistributing a package. Linking from
+this site does not change a package's license.
+
+Third-party dependencies, standards, quotations and borrowed assets retain their
+own licenses and notices. Nothing here relicenses third-party or unknown-owner
+material. Check ownership and applicable notices before redistribution.

@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "repository": "https://github.com/defrixx/defrixx.github.io",
+  "revision": "da1369a3739f9361d99cbed00b752ea2a3044286",
+  "scope": "Canonical RU security prose under 5 security domains; hub navigation and ai-automation skill/tool documentation excluded; EN duplicates and generated site excluded.",
+  "files": [
+    {
+      "path": "content/ai-security/agentic-ai/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "e936b979c950733dda4bc5ea7ee6325c910031b14fdaa0f64a7d1f24789990ca",
+      "lines": 292,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/ai-security/ai-assisted-development/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "28e1cac82f513f0e6f440114ff45e6ff320ddc6462ad5cdc572f63cc2b591c68",
+      "lines": 247,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/ai-security/mcp-security/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "6f43c0dd7a5c9102416a48c97c5184290db07760d7dd8ba7eed9ebe4fadee245",
+      "lines": 251,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/ai-security/overview.ru.md",
+      "kind": "navigation_overview",
+      "sha256": "c18c33f55ff939a2f0ba4d469aab4ef57ba5746471466e2fc5106b56687f7e07",
+      "lines": 21,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/ai-security/owasp-llm-top-10/overview.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "6487e5caaa1cf703908d2d2195b5859c4141e9fa8872d0e5cfbff4a4ce7d0828",
+      "lines": 288,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/ai-security/securing-ai/overview.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "45072f6b26a484ed1060019f3da660f427d5cd433b67a8dd9996a14f3f429959",
+      "lines": 426,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/api/api-security-patterns/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "8a24185010e048a5a78cf1a27d56dfd388f5b10562e4dc8dcff4d32aee3f37ce",
+      "lines": 706,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/business-logic/business-logic-abuse/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "b805d23e228f5b923e642e57dee8d995902be35be2621a25697d302310adb8d3",
+      "lines": 215,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/identity/oidc-oauth/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "668b667999b0b1cf22efec445360409b94dae3246641d0190cc587669d4e258f",
+      "lines": 417,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/overview.ru.md",
+      "kind": "navigation_overview",
+      "sha256": "e55c5c110cc0c6a9a20b52454a561e142fddf0278b57425a82f2837b2f3f78eb",
+      "lines": 22,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/secure-coding/code-review/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "33ad6d9ded5de936ed6b3e8e999dc4d36478a220bbbb42160781390fca9496ad",
+      "lines": 256,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/web/browser-security/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "d92fe3135cfb8145bc0adc84a2ee350908d9f9d94fa26863d6f4a41634683637",
+      "lines": 201,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/application-security/web/owasp-top-10/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "af43c022c2a7564f25f2c1d88e91419cfd9eb71056f1ac59972253dd5994a260",
+      "lines": 792,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/cloud-iam-workload-identity/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "9086776665701e35c8d5e310d6fa6aa973c5739a29b75646440c516ca2b1d93b",
+      "lines": 86,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/adversarial-validation/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "61ca6c53c7d6424b10eafb315fb8f8cb87d0e3f89893100ff9edca423fa18688",
+      "lines": 394,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/cluster-security-review/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "bf687ac33f74650fa120cc6001c72d5a9668e40a0327558b16f06dea7c47a0f2",
+      "lines": 352,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/container-escape-capability-abuse/overview.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "1ca6b034231210ad835671db70b917eac37ae05280577bc3dab52de2de2926eb",
+      "lines": 403,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/pod-security/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "f9db91ea90bd15986d45ca2a2eb949526472f801a3b0ffb927630c1cd7b8eb97",
+      "lines": 394,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/seccomp/checklist.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "74bf4d2b55485292c81507da5755a6692923c2816a34a21351f5ce169dd78472",
+      "lines": 316,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/kubernetes/secrets/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "2e558ff4add3a6547629247c411aa37213b813f7d622788ecd33f2642c90e9c8",
+      "lines": 231,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/overview.ru.md",
+      "kind": "navigation_overview",
+      "sha256": "5e1766cd265e8a62df089b7bd158ceddbe2b9d1c6bef7d1aaa3d8fc43039bf6a",
+      "lines": 26,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/platform-security/secrets/vault/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "61b61d614a4ae940c51e702b9aa68d6cfa8c8179b7060d16c4f09f804c05a064",
+      "lines": 449,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/review/architecture/checklist.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "71a420fb517547f8352bea89bf12cac4e623769b21d0f286bcc77dc1c27f85fd",
+      "lines": 237,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/review/overview.ru.md",
+      "kind": "navigation_overview",
+      "sha256": "4198a58077b79757ce27ee613d45e19efcf55de87cd89eaf9e11a2ef129a2cc6",
+      "lines": 22,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/review/release-governance/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "b722e9fd1e0f8d5e71e64fa2680c6fd47ac403147fdd4cfd567f103eae3968b4",
+      "lines": 223,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/review/threat-modeling/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "4046e2709edc211194b17a222d30512590634864d3bf479af130f0627fcd5804",
+      "lines": 489,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/review/vulnerability-management/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "7f1f0c58deb972f1501eb69ffbbe52b52342fea3d9f9185be0ca1e83d13f2a7a",
+      "lines": 193,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/supply-chain/ci-cd-security/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "ed62eda7ac660d1f8c00fbad193d71038707549cd4ebe5de77f5e99004085b3e",
+      "lines": 84,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/supply-chain/container-image-security/playbook.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "e51ac0cc8b5990ca6e1bed64b05c723a60434f3b39da23797d43acb7c9d7065a",
+      "lines": 237,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/supply-chain/overview.ru.md",
+      "kind": "navigation_overview",
+      "sha256": "16a34314b736f346172b81addc8586b7e1db02c5b0dd7a9673d19e2eac8251cd",
+      "lines": 20,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    },
+    {
+      "path": "content/supply-chain/slsa-provenance/overview.ru.md",
+      "kind": "primary_security_source",
+      "sha256": "5d554b7bd5c3177977991a634e18f23113a4ed553f03c8ee47b968d89eea9c5b",
+      "lines": 325,
+      "revision": "da1369a3739f9361d99cbed00b752ea2a3044286"
+    }
+  ]
+}

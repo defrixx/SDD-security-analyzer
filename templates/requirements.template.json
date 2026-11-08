@@ -1,0 +1,176 @@
+{
+  "schema_version": "4.0",
+  "catalog_id": "user-draft-template",
+  "catalog_version": "2.0.0",
+  "title": "Пустой черновой шаблон: заполните перед активацией",
+  "ready_for_use": false,
+  "release_status": "draft",
+  "scope": "user_catalogue",
+  "domain_filter": [],
+  "origin": {
+    "kind": "user_authored",
+    "classification": "synthetic_example",
+    "external_provenance": null
+  },
+  "sources": [],
+  "requirements": [
+    {
+      "id": "USER-REPLACE-ID",
+      "version": "1.0.0",
+      "title": "Задайте название",
+      "record_key": "user.replace-record-key",
+      "legacy_ids": [],
+      "statement": "",
+      "domain": "",
+      "subdomain": "",
+      "origin": {
+        "kind": "user_authored",
+        "author": "",
+        "created_at": "Задайте дату",
+        "embedded_source": "",
+        "external_provenance": null,
+        "license": null,
+        "classification": "user"
+      },
+      "source_kind": "",
+      "level": "",
+      "severity": "unrated",
+      "status": "active",
+      "source_refs": [
+        {
+          "id": "s1",
+          "line_start": 1,
+          "line_end": 1,
+          "quote": ""
+        }
+      ],
+      "source_context": {
+        "heading_path": [
+          "Задайте свой контекст"
+        ],
+        "profile": "Черновик собственной политики, требуется заполнение",
+        "framing_ref_ids": [
+          "s1"
+        ],
+        "qualifier_ref_ids": [
+          "s1"
+        ]
+      },
+      "applicability": {
+        "predicates": [
+          {
+            "id": "condition-1",
+            "text": "Неизвестное условие: сформулируйте архитектурный факт и вопрос",
+            "evidence": [],
+            "source_ref_ids": [
+              "s1"
+            ]
+          }
+        ],
+        "expression": {
+          "predicate": "condition-1"
+        },
+        "unknown_when": "Условие не определено: задайте архитектурный факт и вопрос; не выдумывать scope."
+      },
+      "clauses": [
+        {
+          "id": "c1",
+          "obligation": "",
+          "source_ref_ids": [
+            "s1"
+          ]
+        }
+      ],
+      "clause_logic": {
+        "clause": "c1"
+      },
+      "verification": {
+        "specification": {
+          "inputs": [
+            "Укажите необходимые свидетельства именно своего требования"
+          ],
+          "steps": [
+            {
+              "id": "v1",
+              "action": "Опишите предметный шаг проверки",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Укажите ожидаемое свидетельство"
+            },
+            {
+              "id": "v2",
+              "action": "Опишите предметный шаг проверки",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Укажите ожидаемое свидетельство"
+            }
+          ],
+          "outcome_conditions": {
+            "satisfied_by_spec": "Требуется предметное заполнение; это не активное правило",
+            "contradicted_by_spec": "Требуется предметное заполнение; это не активное правило",
+            "not_addressed": "Требуется предметное заполнение; это не активное правило",
+            "unknown": "Требуется предметное заполнение; это не активное правило"
+          }
+        },
+        "source_level": {
+          "inputs": [
+            "Укажите необходимые свидетельства именно своего требования"
+          ],
+          "steps": [
+            {
+              "id": "i1",
+              "action": "Опишите предметный шаг проверки",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Укажите ожидаемое свидетельство"
+            },
+            {
+              "id": "i2",
+              "action": "Опишите предметный шаг проверки",
+              "clause_ids": [
+                "c1"
+              ],
+              "expected_evidence": "Укажите ожидаемое свидетельство"
+            }
+          ],
+          "pass_when": "Требуется предметное заполнение; фактическая реализация не проверена",
+          "fail_when": "Требуется предметное заполнение; фактическая реализация не проверена",
+          "unknown_when": "Требуется предметное заполнение; фактическая реализация не проверена"
+        },
+        "execution_policy": "plan_only_no_automatic_execution",
+        "spec_only_implementation_state": "not_verified"
+      },
+      "review": {
+        "status": "example_only",
+        "content_sha256": "aa71a4e4d81174195bf9098fa13057328ac7b917a27da9bfcdd625400d88b179",
+        "ledger_refs": []
+      },
+      "classification_status": "normative",
+      "clause_normativity": {
+        "c1": {
+          "force": "undetermined",
+          "nature": "",
+          "source_ref_ids": [
+            "s1"
+          ],
+          "basis": "Нужно заполнить источник/формулировку и осознанно выбрать силу и природу. Это неполный draft.",
+          "qualifiers": [
+            "Не активировать до заполнения; никакого наследования force из source_kind."
+          ],
+          "evidence_level": "specification"
+        }
+      },
+      "normativity_review": {
+        "status": "example_only",
+        "annotation_sha256": "0043e67e5af836ed404c91f7e11d9dbc31358fb5f0e6aeb0fc629b856fd27f24",
+        "report_refs": []
+      }
+    }
+  ],
+  "limitations": [
+    "Это неполный draft, сознательно не проходит active schema: пустые statement/source/obligation/author. Не включается в анализ. Заполните свои поля, условия и verification plans; не наследуйте demo алгоритм без предметной проверки."
+  ]
+}
