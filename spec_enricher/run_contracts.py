@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from .stage_contracts import Contract, DeltaOperation
 
@@ -39,8 +39,10 @@ class AdoptionOverride(Contract):
 
 
 class RunInput(Contract):
-    delta_document_id: str
-    baseline_document_ids: list[str] = Field(min_length=1, max_length=1000)
+    mode: Literal["enrich_changes", "review_documents"] = "enrich_changes"
+    review_document_ids: list[str] = Field(default_factory=list, max_length=1000)
+    delta_document_id: str | None = None
+    baseline_document_ids: list[str] = Field(default_factory=list, max_length=1000)
     context_document_ids: list[str] = Field(default_factory=list, max_length=1000)
     catalog_ids: list[str] = Field(min_length=1, max_length=100)
     connection: VersionRef
@@ -54,3 +56,33 @@ class RunInput(Contract):
     adoption_overrides: list[AdoptionOverride] = Field(default_factory=list, max_length=1000)
     operation_overrides: list[DeltaOperation] = Field(default_factory=list, max_length=500)
     step_mode: bool = False
+
+    @model_validator(mode="after")
+    def input_mode(self):
+        if self.mode == "enrich_changes":
+            if not self.delta_document_id or not self.baseline_document_ids or self.review_document_ids:
+                raise ValueError("enrichment_requires_delta_and_baseline")
+        else:
+            if not self.review_document_ids or len(set(self.review_document_ids)) != len(self.review_document_ids):
+                raise ValueError("review_requires_unique_documents")
+            if self.delta_document_id or self.baseline_document_ids or self.context_document_ids or self.operation_overrides:
+                raise ValueError("review_does_not_accept_change_operations")
+            if self.pipeline_ref or self.prompt_refs or self.skill_refs:
+                raise ValueError("review_custom_pipeline_prompts_skills_not_supported")
+            if set(self.stage_models) - {"P3", "P5"}:
+                raise ValueError("review_only_uses_P3_P5_models")
+            if any(item.side != "proposed" for item in self.fact_overrides):
+                raise ValueError("review_fact_override_requires_checked_scope")
+        return self
+
+
+def matches_request_checksum(checksum, request):
+    """New mode defaults must not invalidate an unchanged legacy idempotent retry."""
+    from .catalog import digest
+    if digest(request) == checksum:
+        return True
+    if request.get("mode", "enrich_changes") == "enrich_changes" and not request.get("review_document_ids"):
+        legacy = {key: value for key, value in request.items()
+                  if key not in {"mode", "review_document_ids"}}
+        return digest(legacy) == checksum
+    return False

@@ -1,6 +1,8 @@
+import { analysisMode, documentReviewRequest, scopePage, nonScopeQuestions } from "./review-mode.js";
 import { t } from "./i18n.js";
 import { connectionField, connectionSelect } from "./connections.js";
 import {
+  disclosure,
   $,
   projectId,
   setView,
@@ -58,10 +60,128 @@ function checkedList(parent, title, items, selected, label) {
   if (!items.length)
     fieldset.append(element("p", t("No matching objects.", "Нет подходящих объектов."), "muted"));
   parent.append(fieldset);
+  if (!items.length) fieldset.hidden = true;
   return () => values.filter((value) => value.input.checked).map((value) => value.id);
 }
 
 async function renderNewRun(pid, content, isCurrent) {
+  const preset = analysisPresets.get(pid) || {};
+  const mode = analysisMode(preset);
+  const modePanel = disclosure(t("Analysis mode", "Режим проверки"));
+  const modeSelect = connectionSelect(modePanel, t("Choose a mode", "Выберите режим"), mode, [
+    ["review_documents", t("Check documents against requirements", "Проверить документы по требованиям")],
+    ["enrich_changes", t("Advanced: compare and enrich changes", "Дополнительно: сравнить и обогатить изменения")],
+  ]);
+  modeSelect.addEventListener("change", async () => {
+    if (!window.confirm(t("Switch mode? Unsaved choices on this screen will be reset.", "Сменить режим? Несохранённый выбор на этом экране будет сброшен."))) {
+      modeSelect.value = mode;
+      return;
+    }
+    analysisPresets.set(pid, { mode: modeSelect.value });
+    await render();
+  });
+  content.append(modePanel);
+  if (mode === "enrich_changes") return renderComparisonRun(pid, content, isCurrent);
+  return renderDocumentReview(pid, content, isCurrent, preset);
+}
+
+async function renderDocumentReview(pid, content, isCurrent, preset) {
+  if (preset.pipeline_ref || preset.skill_refs?.length || Object.keys(preset.prompt_refs || {}).length || Object.keys(preset.stage_models || {}).length || preset.source_refs?.length) {
+    content.append(element("p", t("This saved configuration contains custom settings unsupported by document review. Switch to advanced comparison, or explicitly start with the standard document-review settings.", "Сохранённая конфигурация содержит настройки, не поддерживаемые проверкой документов. Переключитесь на сравнение или явно начните со стандартных настроек проверки."), "notice"), action(t("Use standard document-review settings", "Использовать стандартные настройки проверки"), async () => { analysisPresets.set(pid, { mode: "review_documents", review_document_ids: preset.review_document_ids, catalog_ids: preset.catalog_ids }); await render(); }));
+    return;
+  }
+  const [documents, catalogs, connections] = await Promise.all([
+    api(`/projects/${pid}/documents`), api(`/projects/${pid}/catalogs`), api(`/projects/${pid}/connections`),
+  ]);
+  if (!isCurrent()) return;
+  content.append(element("h2", t("Check your documents", "Проверить документы")), element("p", t(
+    "Select all files describing your specification and the requirements to check. No baseline or change document is needed. You get a separate report; original files are not changed.",
+    "Выберите все файлы спецификации и требования для проверки. Исходная документация и отдельное описание изменений не нужны. Вы получите отдельный отчёт; исходные файлы не меняются.",
+  )), element("p", t("Unknown or incomplete results are not a pass. This checks documentation, not the running product. Review conclusions and quotations manually.", "Неизвестный или неполный результат не означает успешную проверку. Проверяется документация, а не работающий продукт. Выводы и цитаты нужно проверить вручную."), "notice"));
+  const form = element("form", "", "stack");
+  form.append(action(t("Add specification files", "Добавить файлы спецификации"), () => { setView("documents"); return render(); }));
+  const selectedDocuments = checkedList(form, t("1. Documents to check together", "1. Документы для совместной проверки"), documents,
+    preset.review_document_ids || documents.filter((doc) => doc.active !== false).map((doc) => doc.id), (doc) => `${doc.name} · ${doc.sha256.slice(0, 12)}`);
+  if (!documents.length) form.append(element("p", t("Upload one or more Markdown files first.", "Сначала загрузите один или несколько Markdown-файлов."), "empty"));
+  const enabled = catalogs.filter((catalog) => catalog.enabled);
+  form.append(action(t("Add requirements", "Добавить требования"), () => { setView("catalogs"); return render(); }));
+  const selectedCatalogs = checkedList(form, t("2. Requirements", "2. Требования"), enabled,
+    preset.catalog_ids || enabled.map((catalog) => catalog.id), (catalog) => `${catalog.catalog_id} · ${catalog.version} · ${catalog.records}`);
+  if (!enabled.length) form.append(element("p", t("Add and enable at least one requirements catalog.", "Добавьте и подключите хотя бы один каталог требований."), "empty"));
+  const llms = connections.filter((record) => record.content.kind === "llm" && record.content.enabled !== false);
+  const model = connectionSelect(form, t("3. Model connection", "3. Подключение модели"), referenceKey(preset.connection || llms[0]), [
+    ["", t("Select a tested connection", "Выберите проверенное подключение")],
+    ...llms.map((record) => [referenceKey(record), `${record.content.name} · r${record.revision}`]),
+  ]);
+  form.append(action(t("Configure model", "Настроить модель"), () => { setView("connections"); return render(); }));
+  let factOverrides = (preset.fact_overrides || []).map((item) => ({ ...item }));
+  const confirmedFacts = element("section", "", "panel stack");
+  const drawConfirmedFacts = () => {
+    confirmedFacts.replaceChildren();
+    confirmedFacts.hidden = !factOverrides.length;
+    if (!factOverrides.length) return;
+    confirmedFacts.append(element("h3", t("Your explicit scope answers", "Ваши явные ответы о применимости")), element("p", t("These answers affect which requirements are checked. Recheck them if you change the selected documents or requirements. Preparing this form has not started a model call.", "Эти ответы влияют на выбор проверяемых требований. Перепроверьте их, если меняете документы или требования. Подготовка этой формы не запускает модель."), "notice"));
+    for (const item of factOverrides) {
+      const card = element("div", "", "stack");
+      const label = item.value === null ? t("Unknown", "Неизвестно") : item.value ? t("Yes", "Да") : t("No", "Нет");
+      card.append(element("p", `${item.requirement_id} · ${item.predicate_id}: ${label}`), element("p", item.reason), action(t("Remove this answer", "Убрать этот ответ"), () => {
+        factOverrides = factOverrides.filter((current) => current !== item);
+        invalidate(); drawConfirmedFacts();
+      }));
+      confirmedFacts.append(card);
+    }
+    confirmedFacts.append(action(t("Clear all answers", "Очистить все ответы"), () => { factOverrides = []; invalidate(); drawConfirmedFacts(); }));
+  };
+  drawConfirmedFacts(); form.append(confirmedFacts);
+  const advanced = disclosure(t("Optional: limits and step-by-step approval", "Необязательно: лимиты и пошаговое подтверждение"));
+  const requests = connectionField(advanced, t("Maximum model requests", "Максимум запросов модели"), preset.limits?.max_requests || 200, "number"); requests.min = "1"; requests.max = "10000";
+  const stageRequests = connectionField(advanced, t("Maximum requests per stage", "Максимум запросов на этап"), preset.limits?.stage_max_requests || 100, "number"); stageRequests.min = "1"; stageRequests.max = "10000";
+  const tokens = connectionField(advanced, t("Token budget", "Лимит токенов"), preset.limits?.max_tokens || 256000, "number"); tokens.min = "1";
+  const seconds = connectionField(advanced, t("Time limit, seconds", "Лимит времени, секунд"), preset.limits?.wall_seconds || 1800, "number"); seconds.min = "1";
+  const batchSize = connectionField(advanced, t("Requirements per batch", "Требований в пакете"), preset.limits?.batch_size || 4, "number"); batchSize.min = "1"; batchSize.max = "20";
+  const stepMode = connectionField(advanced, t("Approve each external call", "Подтверждать каждый внешний вызов"), preset.step_mode || false, "checkbox");
+  advanced.append(element("p", t("Custom prompts, skills, and saved pipelines are not supported in document review yet. Use the advanced comparison mode for those configurations.", "Собственные промпты, навыки и сохранённые сценарии пока не поддерживаются в проверке документов. Для этих настроек используйте дополнительный режим сравнения."), "muted"));
+  form.append(advanced);
+  const submit = element("button", t("Check readiness and review data access", "Проверить готовность и доступ к данным")); submit.type = "submit";
+  const preview = element("section", "", "panel stack"); preview.hidden = true;
+  let generation = 0;
+  let startButton = null;
+  const invalidate = () => { generation += 1; if (startButton) startButton.disabled = true; preview.hidden = true; };
+  form.addEventListener("input", invalidate);
+  form.addEventListener("change", invalidate);
+  form.append(submit); content.append(form, preview);
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const current = ++generation;
+    submit.disabled = true;
+    if (startButton) startButton.disabled = true;
+    preview.hidden = true;
+    try {
+      const request = documentReviewRequest(selectedDocuments(), selectedCatalogs(), llms.find((record) => referenceKey(record) === model.value), {
+        max_requests: Number(requests.value), stage_max_requests: Number(stageRequests.value), max_tokens: Number(tokens.value), wall_seconds: Number(seconds.value), batch_size: Number(batchSize.value),
+      }, stepMode.checked, factOverrides);
+      if (!request) throw new Error(t("Select at least one document, a requirements catalog, and a model connection.", "Выберите хотя бы один документ, каталог требований и подключение модели."));
+      const plan = await post(`/projects/${pid}/runs/preflight`, request);
+      if (!isCurrent() || current !== generation) return;
+      preview.hidden = false;
+      preview.replaceChildren(element("h3", t("Review before starting", "Проверьте перед запуском")), element("p", t(
+        `${request.review_document_ids.length} documents · ${plan.active_requirements} requirements. The model receives the selected document text and requirements.`,
+        `Документов: ${request.review_document_ids.length} · требований: ${plan.active_requirements}. Модель получит выбранные документы и требования.`,
+      )), element("pre", JSON.stringify(plan.destinations, null, 2)), element("p", plan.future_payloads, "notice"), element("p", t("Only document assessment runs. No change inference, rewritten specification, or patch acceptance is required to get the report.", "Выполняется только оценка документов. Для отчёта не нужны поиск изменений, переписанная спецификация или принятие правок.")));
+      preview.append(disclosure(t("Inspect exact first request", "Посмотреть точный первый запрос"), element("pre", JSON.stringify(plan.first_payload_preview, null, 2))));
+      startButton = action(t("Start document review", "Запустить проверку документов"), async () => {
+        if (!isCurrent() || current !== generation) return;
+        const run = await post(`/projects/${pid}/runs`, { request, expected_plan_sha256: plan.plan_sha256, idempotency_key: crypto.randomUUID() });
+        selectedRuns.set(pid, run.id); analysisPresets.delete(pid);
+        if (isCurrent()) { setView("run"); await render(); }
+      });
+      preview.append(startButton);
+    } catch (error) { if (isCurrent() && current === generation) showError(error); }
+    finally { if (isCurrent()) submit.disabled = false; }
+  });
+}
+
+async function renderComparisonRun(pid, content, isCurrent) {
   let [documents, catalogs, connections, prompts, skills, sources, pipelines] = await Promise.all([
     api(`/projects/${pid}/documents`),
     api(`/projects/${pid}/catalogs`),
@@ -88,7 +208,7 @@ async function renderNewRun(pid, content, isCurrent) {
   ]);
   if (!isCurrent()) return;
   content.append(
-    element("h2", t("New baseline + delta analysis", "Новый анализ baseline + delta")),
+    element("h2", t("Compare and enrich changes", "Сравнить и обогатить изменения")),
   );
   content.append(
     element(
@@ -101,15 +221,17 @@ async function renderNewRun(pid, content, isCurrent) {
     ),
   );
   let pinnedPipeline = preset.pipeline_ref || null;
+  const pipelineOptions = disclosure(t("Use saved analysis settings", "Использовать сохранённые настройки анализа"));
+  content.append(pipelineOptions);
   const pipelinePicker = connectionSelect(
-    content,
+    pipelineOptions,
     t(
       "Named pipeline (bound to an exact revision)",
-      "Именованный pipeline (binding по точной revision)",
+      "Сохранённые настройки (точная версия)",
     ),
     referenceKey(pinnedPipeline),
     [
-      ["", t("No named pipeline", "Без именованного pipeline")],
+      ["", t("No named pipeline", "Без сохранённых настроек")],
       ...pipelines.map((record) => [
         referenceKey(record),
         `${record.content.name} · r${record.revision}`,
@@ -127,7 +249,7 @@ async function renderNewRun(pid, content, isCurrent) {
   });
 
   const editor = element("section", "", "panel stack");
-  editor.append(element("h3", t("Markdown delta", "Delta в Markdown")));
+  editor.append(element("h3", t("Specification text", "Текст спецификации")));
   const deltaText = connectionField(
     editor,
     t("Change text (up to 100 KiB)", "Текст изменения (до 100 KiB)"),
@@ -137,22 +259,23 @@ async function renderNewRun(pid, content, isCurrent) {
   deltaText.rows = 8;
   const deltaName = connectionField(
     editor,
-    t("New immutable snapshot name", "Имя нового immutable snapshot"),
+    t("New immutable snapshot name", "Имя нового снимка"),
     "delta.md",
   );
   const form = element("form", "", "stack");
   const deltas = documents.filter((doc) => doc.role === "delta");
+  if (!deltas.length) form.append(action(t("Add specification files", "Добавить файлы спецификации"), () => { setView("documents"); return render(); }));
   const delta = connectionSelect(
     form,
-    t("Delta snapshot", "Снимок delta"),
+    t("Specification to check", "Спецификация для проверки"),
     preset.delta_document_id || deltas.at(-1)?.id || "",
     [
-      ["", t("Select or save a delta", "Выберите или сохраните delta")],
+      ["", t("Select an uploaded specification", "Выберите загруженную спецификацию")],
       ...deltas.map((doc) => [doc.id, `${doc.name} · ${doc.sha256.slice(0, 12)}`]),
     ],
   );
   editor.append(
-    action(t("Save text as a separate delta", "Сохранить текст как отдельную delta"), async () => {
+    action(t("Save text as a separate delta", "Сохранить текст спецификации"), async () => {
       const result = await api(
         `/projects/${pid}/documents?filename=${encodeURIComponent(deltaName.value)}&role=delta`,
         {
@@ -167,19 +290,19 @@ async function renderNewRun(pid, content, isCurrent) {
       setStatus(
         t(
           "Delta snapshot saved; original files were not overwritten.",
-          "Delta snapshot сохранён; исходники не перезаписаны.",
+          "Снимок спецификации сохранён; исходные файлы не перезаписаны.",
         ),
       );
     }),
   );
-  content.append(editor);
+  content.append(disclosure(t("Or paste a specification instead of uploading files", "Или вставьте спецификацию вместо загрузки файлов"), editor));
   const baseline = documents.filter((doc) => doc.role === "master_spec");
   const context = documents.filter((doc) => doc.role === "context");
   const selectedBaseline = checkedList(
     form,
     t(
-      "Baseline: selected documentation before the change",
-      "Baseline: выбранная документация до изменения",
+      "Existing documentation (required for comparison)",
+      "Исходная документация (обязательна для сравнения)",
     ),
     baseline,
     preset.baseline_document_ids || baseline.filter((doc) => doc.active).map((doc) => doc.id),
@@ -222,9 +345,10 @@ async function renderNewRun(pid, content, isCurrent) {
   );
 
   const enabled = catalogs.filter((catalog) => catalog.enabled);
+  if (!enabled.length) form.append(action(t("Add requirements before analysis", "Добавить требования перед анализом"), () => { setView("catalogs"); return render(); }));
   const selectedCatalogs = checkedList(
     form,
-    t("Catalogs and source profiles", "Каталоги и source profiles"),
+    t("Requirements to check", "Требования для проверки"),
     enabled,
     preset.catalog_ids || enabled.map((catalog) => catalog.id),
     (catalog) =>
@@ -237,16 +361,17 @@ async function renderNewRun(pid, content, isCurrent) {
     element(
       "p",
       t(
-        "An accepted source profile includes its required defaults. Source force/nature are preserved; documentary assessment and review decisions remain separate.",
-        "Принятый source profile включает его required defaults. Force/nature исходника сохраняются; documentary assessment и review decision различаются.",
+        "Selected catalogs are checked together. Review the scope before starting.",
+        "Выбранные каталоги проверяются вместе. Перед запуском проверьте состав требований.",
       ),
       "notice",
     ),
   );
   const llms = connections.filter((record) => record.content.kind === "llm");
+  if (!llms.length) form.append(action(t("Set up a model connection", "Настроить подключение модели"), () => { setView("connections"); return render(); }));
   const model = connectionSelect(
     form,
-    "Pinned LLM profile revision",
+    t("Model connection", "Подключение модели"),
     referenceKey(preset.connection || llms[0]),
     [
       ["", t("Select a tested profile", "Выберите проверенный профиль")],
@@ -267,7 +392,7 @@ async function renderNewRun(pid, content, isCurrent) {
       "summary",
       t(
         "Models and published prompts for individual model steps",
-        "Модели и published prompts отдельных model-step",
+        "Модели и опубликованные промпты отдельных этапов",
       ),
     ),
   );
@@ -283,7 +408,7 @@ async function renderNewRun(pid, content, isCurrent) {
       ),
       referenceKey(preset.stage_models?.[stage]),
       [
-        ["", t("Primary LLM profile", "Основной LLM profile")],
+        ["", t("Primary LLM profile", "Основное подключение модели")],
         ...llms.map((record) => [
           referenceKey(record),
           `${record.content.name} · r${record.revision}`,
@@ -314,7 +439,7 @@ async function renderNewRun(pid, content, isCurrent) {
     form,
     t(
       "Skills: before → replace/core → after, order pinned by preflight",
-      "Skills: before → replace/core → after, порядок закрепляется preflight",
+      "Навыки: до → вместо / основной этап → после. Порядок фиксируется перед запуском.",
     ),
     skills
       .filter((record) => record.content.enabled)
@@ -327,7 +452,7 @@ async function renderNewRun(pid, content, isCurrent) {
     form,
     t(
       "Maximum model requests (including repair/retry)",
-      "Максимум модельных requests (включая repair/retry)",
+      "Максимум запросов модели (включая исправления и повторы)",
     ),
     preset.limits?.max_requests || 200,
     "number",
@@ -336,7 +461,7 @@ async function renderNewRun(pid, content, isCurrent) {
   requests.max = "10000";
   const stageRequests = connectionField(
     form,
-    t("Maximum requests per stage", "Максимум requests одной стадии"),
+    t("Maximum requests per stage", "Максимум запросов на один этап"),
     preset.limits?.stage_max_requests || 100,
     "number",
   );
@@ -344,13 +469,13 @@ async function renderNewRun(pid, content, isCurrent) {
   stageRequests.max = "10000";
   const tokens = connectionField(
     form,
-    "Conservative token budget",
+    t("Conservative token budget", "Лимит токенов"),
     preset.limits?.max_tokens || 256000,
     "number",
   );
   const seconds = connectionField(
     form,
-    t("Wall-clock budget, seconds", "Wall budget, секунд"),
+    t("Wall-clock budget, seconds", "Лимит времени, секунд"),
     preset.limits?.wall_seconds || 1800,
     "number",
   );
@@ -366,7 +491,7 @@ async function renderNewRun(pid, content, isCurrent) {
     form,
     t(
       "Step-by-step mode: stages and exact payload of every external call",
-      "Пошаговый режим: стадии и точный payload каждого внешнего вызова",
+      "Пошаговый режим: этапы и точные данные каждого внешнего вызова",
     ),
     preset.step_mode || false,
     "checkbox",
@@ -396,7 +521,7 @@ async function renderNewRun(pid, content, isCurrent) {
     action(
       t(
         "Inspect explicit overrides for this new run",
-        "Просмотреть явные overrides этого нового run",
+        "Посмотреть ручные переопределения этого запуска",
       ),
       () =>
         details(t("Overrides do not change frozen history", "Overrides не меняют frozen историю"), {
@@ -406,7 +531,7 @@ async function renderNewRun(pid, content, isCurrent) {
         }),
     ),
     action(
-      t("Clear all overrides before analysis", "Очистить все overrides перед анализом"),
+      t("Clear all overrides before analysis", "Очистить ручные переопределения перед анализом"),
       () => {
         factOverrides = [];
         operationOverrides = [];
@@ -419,9 +544,21 @@ async function renderNewRun(pid, content, isCurrent) {
       },
     ),
   );
+  const advanced = disclosure(t("Advanced: sources, skills, budgets, and overrides", "Дополнительно: источники, навыки, лимиты и переопределения"));
+  const children = Array.from(form.children);
+  const modelIndex = children.indexOf(model);
+  for (const child of children.slice(modelIndex + 1)) advanced.append(child);
+  // Source selection is optional; keep both its notice and checkboxes together.
+  const sourceFieldset = Array.from(form.querySelectorAll("fieldset"))[2];
+  if (sourceFieldset) {
+    const notice = sourceFieldset.nextElementSibling;
+    advanced.prepend(sourceFieldset);
+    if (notice?.classList.contains("notice")) sourceFieldset.after(notice);
+  }
+  form.append(advanced);
   const submit = element(
     "button",
-    t("Prepare access plan and payload preview", "Подготовить план доступа и payload preview"),
+    t("Check readiness and review data access", "Проверить готовность и доступ к данным"),
   );
   submit.type = "submit";
   const preview = element("section", "", "panel");
@@ -458,7 +595,7 @@ async function renderNewRun(pid, content, isCurrent) {
       setStatus(
         t(
           "Parameters changed — prepare preflight again.",
-          "Параметры изменились — заново подготовьте preflight.",
+          "Параметры изменились. Повторите проверку готовности.",
         ),
       );
     }
@@ -468,10 +605,11 @@ async function renderNewRun(pid, content, isCurrent) {
     submit.disabled = true;
     try {
       const connection = llms.find((item) => referenceKey(item) === model.value);
-      if (!connection || !delta.value)
-        throw new Error(t("Select a delta and LLM profile.", "Выберите delta и LLM profile."));
+      if (!connection || !delta.value || !selectedBaseline().length)
+        throw new Error(t("Comparison requires a baseline, a change document, and a model. For standalone specification checks, switch to document review.", "Для сравнения нужны исходная документация, документ изменения и модель. Для самостоятельной проверки спецификации переключитесь в режим проверки документов."));
       /** @type {import('./api.generated').APIRunInput} */
       const request = {
+        mode: "enrich_changes",
         delta_document_id: delta.value,
         baseline_document_ids: selectedBaseline(),
         context_document_ids: selectedContext(),
@@ -645,7 +783,7 @@ async function renderHistory(pid, content, isCurrent) {
   if (!isCurrent()) return;
   content.append(element("h2", t("Run history", "История запусков")));
   if (runs.length > 1) {
-    const compare = element("section", "", "panel stack");
+    const compare = disclosure(t("Optional: compare previous runs", "Необязательно: сравнить прошлые запуски"));
     compare.append(
       element(
         "h3",
@@ -694,7 +832,7 @@ async function renderHistory(pid, content, isCurrent) {
             `${run.created_at} UTC · ${run.status} · ${run.error_code || "без ошибки lifecycle"}`,
         ),
       ),
-      action("Pipeline / Review / Diff", async () => {
+      action(t("Open results", "Открыть результаты"), async () => {
         selectedRuns.set(pid, run.id);
         setView("run");
         await render();
@@ -722,7 +860,7 @@ async function renderRun(pid, rid, content, isCurrent) {
   const prefix = `/projects/${pid}/runs/${rid}`;
   let run = await api(prefix);
   if (!isCurrent()) return;
-  content.append(element("h2", t("Run review", "Review запуска")), element("p", rid, "muted"));
+  content.append(element("h2", t("Run review", "Результаты анализа")), element("p", rid, "muted"));
   const state = element("p", "", "notice");
   state.setAttribute("role", "status");
   const stages = element("div", "", "stage-grid");
@@ -926,9 +1064,126 @@ async function artifactInspector(pid, rid) {
   if (!$("#details").open) $("#details").showModal();
 }
 
+function assessmentLabel(value) {
+  const labels = {
+    satisfied_by_spec: t("Supported by documents", "Подтверждено документами"),
+    contradicted_by_spec: t("Contradicted by documents", "Противоречит документам"),
+    not_addressed: t("Not addressed in documents", "Не описано в документах"),
+    unknown: t("Unknown: insufficient evidence", "Неизвестно: недостаточно данных"),
+    not_assessed: t("Not assessed", "Не оценено"),
+    applicable: t("Applicable", "Применимо"),
+    not_applicable: t("Not applicable", "Неприменимо"),
+  };
+  return labels[value] || value || labels.unknown;
+}
+
+async function documentReviewResults(pid, rid, target, isCurrent) {
+  const prefix = `/projects/${pid}/runs/${rid}`;
+  let report;
+  try { report = await api(`${prefix}/report`); }
+  catch (error) {
+    if (!isCurrent()) return;
+    target.replaceChildren(element("h3", t("Document review report", "Отчёт о проверке документов")), element("p", t("A report is not available yet. A stopped or incomplete run is not a successful check. Inspect the stage messages above before continuing.", "Отчёт пока недоступен. Остановленный или неполный запуск не означает успешную проверку. Перед продолжением изучите сообщения этапов выше."), "notice"), element("p", error.message || String(error)));
+    return;
+  }
+  if (!isCurrent()) return;
+  target.replaceChildren(element("h3", t("Document review report", "Отчёт о проверке документов")), element("p", t("Documentation only; product implementation is not verified. Model conclusions and quotations require human review. Unknown does not mean passed or failed.", "Проверена только документация; реализация продукта не проверялась. Выводы модели и цитаты требуют проверки человеком. Неизвестный результат не означает ни успех, ни провал."), "notice"));
+  target.append(element("p", report.incomplete
+    ? t("Incomplete coverage: some assessments could not be completed. Do not treat this report as a pass.", "Проверка неполная: часть оценок не завершена. Этот отчёт нельзя считать успешной проверкой.")
+    : t("Report generated. This is not a security certification or a blanket pass.", "Отчёт сформирован. Это не сертификат безопасности и не общий вердикт об успехе.")),
+    element("p", t(`${report.matrix.length} requirements · ${report.unknown_requirements} unknown or not assessed · ${report.findings.length} findings`, `Требований: ${report.matrix.length} · неизвестно или не оценено: ${report.unknown_requirements} · замечаний: ${report.findings.length}`)));
+  const exportKey = crypto.randomUUID();
+  target.append(action(t("Download independent report (Markdown + JSON)", "Скачать отдельный отчёт (Markdown + JSON)"), async () => {
+    const result = await post(`${prefix}/report/exports`, { expected_review_revision: report.review_revision, idempotency_key: exportKey });
+    if (!isCurrent()) return;
+    const link = element("a", t("Download report ZIP", "Скачать ZIP с отчётом"), "download-action");
+    link.href = `/api/v1${prefix}/exports/${result.id}`; link.download = result.filename;
+    target.append(link); link.focus();
+  }), element("p", t("The report includes document quotations and source references. Review it before sharing. Original documents are unchanged; no patches need to be accepted.", "Отчёт содержит цитаты документов и ссылки на источники. Проверьте его перед передачей другим. Исходные документы не меняются; принимать правки не требуется."), "muted"));
+  const filter = connectionSelect(target, t("Show requirements", "Показать требования"), "all", [
+    ["all", t("All assessments", "Все оценки")], ["unknown", t("Unknown or not assessed", "Неизвестно или не оценено")], ["not_addressed", t("Not addressed", "Не описано")], ["contradicted_by_spec", t("Contradictions", "Противоречия")], ["satisfied_by_spec", t("Supported by documents", "Подтверждено документами")],
+  ]);
+  const matrix = element("section", "", "stack"); target.append(matrix);
+  const draw = () => {
+    matrix.replaceChildren();
+    for (const row of report.matrix.filter((row) => filter.value === "all" || (filter.value === "unknown" ? ["unknown", "not_assessed"].includes(row.assessment?.assessment || "unknown") : row.assessment?.assessment === filter.value))) {
+      const value = row.assessment || {};
+      matrix.append(disclosure(`${row.requirement_id} · ${assessmentLabel(value.assessment)}`, element("p", t(`Applicability: ${assessmentLabel(value.applicability)}`, `Применимость: ${assessmentLabel(value.applicability)}`)), element("p", value.reason || ""), ...(Object.values(value.clause_assessments || {}).flatMap((clause) => [element("p", clause.explanation || clause.reason || ""), ...(clause.evidence_refs || []).filter((ref) => ref.quote).map((ref) => element("p", ref.quote))])), element("pre", JSON.stringify(value, null, 2))));
+    }
+    if (!matrix.children.length) matrix.append(element("p", t("No matching requirements.", "Нет подходящих требований.")));
+  };
+  filter.addEventListener("change", draw); draw();
+  target.append(element("h3", t("Findings", "Замечания")));
+  for (const finding of report.findings) {
+    const card = element("section", "", "panel stack");
+    card.append(element("h4", finding.requirement_ref?.id || finding.requirement_id || finding.id), element("p", assessmentLabel(finding.assessment)), element("p", finding.explanation || finding.reason || ""));
+    if (finding.suggested_resolution) card.append(element("p", finding.suggested_resolution));
+    for (const ref of finding.evidence_refs || []) {
+      if (ref.quote) card.append(element("p", ref.quote));
+      if (ref.document_id) card.append(element("p", t(`Source: ${ref.document_id}`, `Источник: ${ref.document_id}`), "muted"));
+    }
+    card.append(disclosure(t("Evidence and details", "Доказательства и подробности"), element("pre", JSON.stringify(finding, null, 2)))); target.append(card);
+  }
+  if (!report.findings.length) target.append(element("p", t("No findings listed. Check unknown assessments and incomplete coverage before drawing conclusions.", "Замечаний в списке нет. Перед выводами проверьте неизвестные оценки и полноту проверки.")));
+  const otherQuestions = nonScopeQuestions(report);
+  if (otherQuestions.length) target.append(disclosure(t(`Other questions to resolve (${otherQuestions.length})`, `Другие вопросы для уточнения (${otherQuestions.length})`), ...otherQuestions.map((question) => element("p", question))));
+  if (report.scope_confirmations?.length) {
+    const panel = element("section", "", "panel stack");
+    panel.append(element("h3", t("Confirm applicability before excluding requirements", "Уточните применимость перед исключением требований")), element("p", t("The model proposed excluding requirements or individual clauses. This is not confirmed and is not a pass. Answer only what you know; provide the basis for each answer. Your answers prepare a new review, without changing this report or starting the model.", "Модель предложила исключить требования или отдельные пункты. Это не подтверждено и не означает успешную проверку. Отвечайте только на известные вам вопросы и укажите основания. Ответы подготовят новую проверку, не изменяя этот отчёт и не запуская модель."), "notice"));
+    panel.append(element("p", t(`${report.scope_confirmations.length} requirements need clarification. You can answer only some; the rest remain unverified. Downloading the report does not require answers.`, `Требуют уточнения: ${report.scope_confirmations.length}. Можно ответить на часть вопросов; остальные останутся непроверенными. Для скачивания отчёта ответы не нужны.`)));
+    const search = connectionField(panel, t("Filter by requirement ID", "Фильтр по коду требования"), "", "search");
+    const groups = [];
+    const answers = [];
+    for (const scope of report.scope_confirmations) {
+      const section = disclosure(`${scope.requirement_id} · ${t("Questions", "Вопросов")}: ${scope.facts?.length || 0}`);
+      section.append(element("p", scope.reason === "review_scope_exclusion_requires_confirmation" ? t("Confirm the scope before excluding this requirement or its clauses. The model’s assumption alone is not sufficient.", "Подтвердите область применимости перед исключением требования или его пунктов. Одного предположения модели недостаточно.") : scope.question || ""));
+      if (scope.excluded_clause_ids?.length) section.append(element("p", t(`Clauses proposed for exclusion: ${scope.excluded_clause_ids.join(", ")}`, `Предложены к исключению пункты: ${scope.excluded_clause_ids.join(", ")}`), "muted"));
+      for (const fact of scope.facts || []) {
+        const card = element("div", "", "panel stack");
+        card.append(element("p", fact.predicate_text || fact.predicate_id), element("p", fact.question || fact.explanation || ""));
+        for (const evidence of fact.evidence || []) if (evidence.quote) card.append(element("p", evidence.quote));
+        const answer = connectionSelect(card, t("Your answer (not the model's assumption)", "Ваш ответ (не предположение модели)"), "", [["", t("Choose an answer", "Выберите ответ")], ["true", t("Yes, the condition exists", "Да, условие выполняется")], ["false", t("No, the condition is absent", "Нет, условие отсутствует")], ["unknown", t("I do not know", "Мне неизвестно")]]);
+        const reason = connectionField(card, t("Basis for your answer or uncertainty", "Основание ответа или причина неизвестности"), "", "textarea");
+        answers.push({ requirement_id: scope.requirement_id, fact, answer, reason }); section.append(card);
+      }
+      groups.push({ requirement_id: scope.requirement_id, node: section });
+    }
+    const visibleGroups = element("div", "", "stack");
+    const paging = element("div", "", "toolbar");
+    const count = element("p"); count.setAttribute("aria-live", "polite");
+    let page = 0;
+    const drawPage = () => {
+      const result = scopePage(groups, search.value, page); page = result.page;
+      visibleGroups.replaceChildren(...result.items.map((group) => group.node));
+      count.textContent = t(`Page ${page + 1} of ${result.pages} · ${result.total} requirements`, `Страница ${page + 1} из ${result.pages} · требований: ${result.total}`);
+      previous.disabled = page === 0; next.disabled = page + 1 >= result.pages;
+    };
+    const previous = action(t("Previous", "Назад"), () => { page -= 1; drawPage(); }, { disabledWhen: () => page === 0 });
+    const next = action(t("Next", "Далее"), () => { page += 1; drawPage(); }, { disabledWhen: () => page + 1 >= scopePage(groups, search.value, page).pages });
+    search.addEventListener("input", () => { page = 0; drawPage(); });
+    paging.append(previous, count, next); panel.append(visibleGroups, paging); drawPage();
+    if (answers.length) panel.append(action(t("Prepare a new review with my answers", "Подготовить новую проверку с моими ответами"), async () => {
+      const chosen = answers.filter((item) => item.answer.value || item.reason.value.trim());
+      if (!chosen.length || chosen.some((item) => !item.answer.value || !item.reason.value.trim())) throw new Error(t("Choose an answer and provide a basis for each question you fill in.", "Для каждого заполненного вопроса выберите ответ и укажите основание."));
+      const overrides = chosen.map((item) => ({ requirement_id: item.requirement_id, predicate_id: item.fact.predicate_id, side: "proposed", value: item.answer.value === "unknown" ? null : item.answer.value === "true", reason: item.reason.value.trim() }));
+      const manifest = await api(`${prefix}/manifest`);
+      if (!isCurrent()) return;
+      const keys = new Set(overrides.map((item) => `${item.requirement_id}|${item.side}|${item.predicate_id}`));
+      const retained = (manifest.request.fact_overrides || []).filter((item) => !keys.has(`${item.requirement_id}|${item.side}|${item.predicate_id}`));
+      analysisPresets.set(pid, { ...manifest.request, mode: "review_documents", fact_overrides: [...retained, ...overrides] });
+      setView("analysis"); await render();
+    }));
+    target.append(panel);
+  }
+  target.append(disclosure(t("Pinned documents and full report", "Зафиксированные документы и полный отчёт"), element("pre", JSON.stringify(report, null, 2))));
+}
+
 async function runResults(pid, rid, run, target, isCurrent) {
   const prefix = `/projects/${pid}/runs/${rid}`;
   if (!isCurrent()) return;
+  const manifestForMode = await api(`${prefix}/manifest`);
+  if (!isCurrent()) return;
+  if (manifestForMode.request?.mode === "review_documents") return documentReviewResults(pid, rid, target, isCurrent);
   target.replaceChildren(
     element("h3", t("Requirements matrix", "Матрица требований")),
     element(
@@ -1103,13 +1358,13 @@ async function runResults(pid, rid, run, target, isCurrent) {
     target.append(panel);
   }
   const matrixControls = element("div", "", "toolbar");
-  const applicability = connectionSelect(matrixControls, "Proposed applicability", "", [
+  const applicability = connectionSelect(matrixControls, t("Proposed applicability", "Применимость после изменений"), "", [
     ["", t("All", "Все")],
     ["applicable", t("Applicable", "Применимые")],
     ["not_applicable", t("Not applicable", "Неприменимые")],
     ["unknown", t("Unknown", "Неопределённые")],
   ]);
-  const assessment = connectionSelect(matrixControls, "Proposed assessment", "", [
+  const assessment = connectionSelect(matrixControls, t("Proposed assessment", "Оценка после изменений"), "", [
     ["", t("All", "Все")],
     ...[
       "satisfied_by_spec",
@@ -1132,7 +1387,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
     const wrap = element("div", "", "table-wrap");
     const table = element("table");
     const head = element("tr");
-    ["ID", "Baseline", "Proposed", "Effect", "Implementation"].forEach((label) => {
+    ["ID", t("Baseline", "До изменений"), t("Proposed", "После изменений"), t("Effect", "Эффект"), t("Implementation", "Реализация")].forEach((label) => {
       const th = element("th", label);
       th.scope = "col";
       head.append(th);
@@ -1162,7 +1417,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
       pager.append(action(t("Matrix: next", "Матрица: далее"), () => loadMatrix(offset + 50)));
     pager.append(
       action(t("Current page details", "Подробности текущей страницы"), () =>
-        details("Assessment matrix", matrix),
+        details(t("Assessment matrix", "Матрица оценки"), matrix),
       ),
     );
     matrixList.append(pager);
@@ -1172,7 +1427,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
   await loadMatrix(0);
   let reviewRevision = run.review_revision;
   const filters = element("div", "", "toolbar");
-  const findingType = connectionSelect(filters, "Finding type", "", [
+  const findingType = connectionSelect(filters, t("Finding type", "Тип замечания"), "", [
     ["", t("All", "Все")],
     ...[
       "explicit_contradiction",
@@ -1184,15 +1439,15 @@ async function runResults(pid, rid, run, target, isCurrent) {
       "unverifiable_claim",
     ].map((key) => [key, key]),
   ]);
-  const severity = connectionSelect(filters, "Severity", "", [
+  const severity = connectionSelect(filters, t("Severity", "Критичность"), "", [
     ["", t("All", "Все")],
     ...["unrated", "critical", "high", "medium", "low"].map((key) => [key, key]),
   ]);
-  const effect = connectionSelect(filters, "Change effect", "", [
+  const effect = connectionSelect(filters, t("Change effect", "Эффект изменения"), "", [
     ["", t("All", "Все")],
     ...["introduced", "regressed", "improved", "unchanged", "unresolved"].map((key) => [key, key]),
   ]);
-  const review = connectionSelect(filters, "Review state", "", [
+  const review = connectionSelect(filters, t("Review state", "Статус проверки"), "", [
     ["", t("All", "Все")],
     ...["unreviewed", "accepted", "rejected", "needs_clarification", "deferred"].map((key) => [
       key,
@@ -1200,7 +1455,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
     ]),
   ]);
   const findingList = element("section");
-  target.append(element("h3", "Findings"), filters, findingList);
+  target.append(element("h3", t("Findings", "Замечания")), filters, findingList);
   let findingGeneration = 0;
   async function loadFindings(offset) {
     const generation = ++findingGeneration;
@@ -1289,7 +1544,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
             ),
           ),
         );
-        const mode = connectionSelect(adoption, "Adoption mode", "required", [
+        const mode = connectionSelect(adoption, t("Adoption mode", "Режим принятия"), "required", [
           [
             "required",
             t(
@@ -1393,7 +1648,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
       ),
     );
   const patches = element("section");
-  target.append(element("h3", "Selective patches"), patches);
+  target.append(element("h3", t("Selective patches", "Выборочные исправления")), patches);
   const selection = new Map();
   const editors = new Map();
   for (const patch of proposal.patches) {
@@ -1436,9 +1691,9 @@ async function runResults(pid, rid, run, target, isCurrent) {
       patch.review_comment || "",
     );
     for (const [state, label] of [
-      ["accepted", t("Accept patch", "Принять patch")],
-      ["rejected", t("Reject patch", "Отклонить patch")],
-      ["deferred", t("Defer patch", "Отложить patch")],
+      ["accepted", t("Accept patch", "Принять правку")],
+      ["rejected", t("Reject patch", "Отклонить правку")],
+      ["deferred", t("Defer patch", "Отложить правку")],
     ])
       card.append(
         action(label, async () => {
@@ -1481,7 +1736,7 @@ async function runResults(pid, rid, run, target, isCurrent) {
     ),
   });
   target.append(
-    action(t("Inspect selected diff", "Просмотреть выбранный diff"), async () => {
+    action(t("Inspect selected diff", "Посмотреть выбранные изменения"), async () => {
       const value = await post(`${prefix}/proposal/preview`, previewBody());
       const body = $("#detail-content");
       body.replaceChildren(element("h2", t("Selected changes", "Выбранные изменения")));

@@ -12,12 +12,12 @@ async function renderSources(pid, content, isCurrent) {
   if (!isCurrent()) return;
   content.append(
     element("h2", t("Documentation and catalog sources", "Источники документации и каталогов")),
-    element("p", initial.notice, "notice"),
+    element("p", t("Choose a folder inside the read-only /sources mount. Secret, QA/oracle directories and symbolic links are excluded. Nothing is scanned until you explicitly approve the read scope.", "Выберите папку внутри доступного только для чтения /sources. Папки с секретами, QA/oracle и символические ссылки исключены. Чтение начинается только после явного подтверждения области доступа."), "notice"),
     element(
       "p",
       t(
         "Reading creates an immutable snapshot. A new run uses selected snapshots; there are no automatic updates, crawling, or tool calls.",
-        "Чтение создаёт immutable snapshot. Новый run использует выбранные snapshots; автоматического обновления, crawl или tool calls нет.",
+        "Чтение создаёт неизменяемый снимок. Анализ использует выбранные снимки; автоматического обновления, обхода страниц и вызовов инструментов нет.",
       ),
     ),
     action(t("Add source", "Добавить источник"), () => editSource(pid)),
@@ -163,7 +163,7 @@ async function renderSources(pid, content, isCurrent) {
     content.append(box);
   }
   const list = element("section");
-  content.append(element("h3", t("Saved source snapshots", "Сохранённые source snapshots")), list);
+  content.append(element("h3", t("Saved source snapshots", "Сохранённые снимки источников")), list);
   let offset = 0;
   async function page() {
     const snapshots = await api(`/projects/${pid}/source-snapshots?offset=${offset}&limit=25`);
@@ -187,10 +187,10 @@ async function renderSources(pid, content, isCurrent) {
       raw.download = "source-original.bin";
       box.append(raw);
       if (snapshot.document_id)
-        box.append(element("p", `Document snapshot: ${snapshot.document_id}`));
+        box.append(element("p", t(`Document snapshot: ${snapshot.document_id}`, `Снимок документа: ${snapshot.document_id}`)));
       if (snapshot.catalog_import_id)
         box.append(
-          action(t("Preview source catalog", "Preview каталога из источника"), async () => {
+          action(t("Preview source catalog", "Предпросмотр каталога из источника"), async () => {
             const preview = await api(
               `/projects/${pid}/catalog-imports/${snapshot.catalog_import_id}`,
             );
@@ -198,7 +198,7 @@ async function renderSources(pid, content, isCurrent) {
             if (!preview.issues.length)
               $("#detail-content").append(
                 action(
-                  t("Accept displayed catalog and scope", "Принять показанный каталог и scope"),
+                  t("Accept displayed catalog and scope", "Принять каталог и область действия"),
                   async () => {
                     await post(`/projects/${pid}/catalog-imports/${preview.id}/commit`, {
                       confirmed: true,
@@ -214,17 +214,17 @@ async function renderSources(pid, content, isCurrent) {
       list.append(box);
     }
     if (!snapshots.length)
-      list.append(element("p", t("No snapshots yet.", "Snapshots пока нет."), "empty"));
+      list.append(element("p", t("No snapshots yet.", "Снимков пока нет."), "empty"));
     if (offset)
       list.append(
-        action(t("Source snapshots: back", "Source snapshots: назад"), async () => {
+        action(t("Source snapshots: back", "Снимки источников: назад"), async () => {
           offset = Math.max(0, offset - 25);
           await page();
         }),
       );
     if (snapshots.length === 25)
       list.append(
-        action(t("Source snapshots: next", "Source snapshots: далее"), async () => {
+        action(t("Source snapshots: next", "Снимки источников: далее"), async () => {
           offset += 25;
           await page();
         }),
@@ -258,7 +258,7 @@ async function editSource(pid, record = null) {
     [
       ["local_folder", t("Selected folder inside /sources", "Выбранная папка внутри /sources")],
       ["https", t("Specified HTTP(S) pages", "Указанные HTTP(S)-страницы")],
-      ["mcp", t("Read-only MCP through broker", "Read-only MCP через broker")],
+      ["mcp", t("Read-only MCP through broker", "MCP только для чтения через посредника")],
     ],
   );
   const uri = connectionField(
@@ -271,11 +271,11 @@ async function editSource(pid, record = null) {
     t("Source purpose", "Назначение источника"),
     source.purpose || "master_spec",
     [
-      ["master_spec", t("Current state / baseline", "Текущее состояние / baseline")],
+      ["master_spec", t("Current state / baseline", "Текущее состояние продукта")],
       ["context", t("Additional context", "Дополнительный контекст")],
       [
         "catalog",
-        t("Catalog — preview only until accepted", "Каталог — только preview до принятия"),
+        t("Catalog — preview only until accepted", "Каталог — предпросмотр до подтверждения"),
       ],
     ],
   );
@@ -295,7 +295,7 @@ async function editSource(pid, record = null) {
   );
   const required = connectionField(
     form,
-    t("Required source for the selected run", "Обязательный источник для выбранного run"),
+    t("Required source for the selected run", "Обязательный источник для анализа"),
     source.required ?? true,
     "checkbox",
   );
@@ -328,7 +328,7 @@ async function editSource(pid, record = null) {
   );
   const exclusions = connectionField(
     form,
-    t("Exclusions, one per line", "Exclusions, по одному на строку"),
+    t("Exclusions, one per line", "Исключения, по одному на строку"),
     (source.exclusions || initial.default_exclusions).join("\n"),
     "textarea",
   );
@@ -337,7 +337,7 @@ async function editSource(pid, record = null) {
       "p",
       t(
         "Secret files, .git, fixtures/QA/expected/oracle, and symlinks are always excluded. Paths outside the mount are inaccessible. To select another host folder, use a read-only Compose mount, then accept its scope in the UI.",
-        "Secret files, .git, fixtures/QA/expected/oracle и symlinks имеют обязательные исключения. Пути вне mount недоступны. Для выбора другой host-папки используйте read-only Compose mount, затем примите scope в UI.",
+        "Файлы с секретами, .git, fixtures/QA/expected/oracle и символические ссылки всегда исключены. Пути вне подключённой папки недоступны. Другую папку компьютера подключите в Compose только для чтения, затем подтвердите область доступа в интерфейсе.",
       ),
       "notice",
     ),
@@ -364,13 +364,13 @@ async function editSource(pid, record = null) {
     t("HTTP(S) source authentication", "Авторизация источника HTTP(S)"),
     source.auth || "none",
     [
-      ["none", t("No authentication", "Без auth")],
-      ["bearer", t("Static bearer via secret reference", "Static bearer через secret reference")],
+      ["none", t("No authentication", "Без авторизации")],
+      ["bearer", t("Static bearer via secret reference", "Bearer-токен по ссылке на секрет")],
     ],
   );
   const token = connectionField(
     form,
-    t("New source token — memory only", "Новый source token — только в памяти"),
+    t("New source token — memory only", "Новый токен источника — только в памяти"),
     "",
     "password",
   );
@@ -378,7 +378,7 @@ async function editSource(pid, record = null) {
     form,
     t(
       "Source uses separately mounted file:llm_api_key",
-      "Source использует отдельно смонтированный file:llm_api_key",
+      "Источник использует отдельно подключённый file:llm_api_key",
     ),
     source.secret_ref === "file:llm_api_key",
     "checkbox",
@@ -395,18 +395,18 @@ async function editSource(pid, record = null) {
   );
   const tool = connectionField(
     form,
-    t("Exact allowlisted MCP tool name", "Точное allowlisted MCP tool name"),
+    t("Exact allowlisted MCP tool name", "Точное имя разрешённого инструмента MCP"),
     source.tool || "",
   );
   const argumentsField = connectionField(
     form,
-    t("Visible typed MCP arguments (JSON)", "Видимые typed MCP arguments (JSON)"),
+    t("Visible typed MCP arguments (JSON)", "Аргументы MCP с проверкой типов (JSON)"),
     JSON.stringify(source.arguments || {}, null, 2),
     "textarea",
   );
   const catalogFormat = connectionSelect(
     form,
-    t("Catalog format in MCP text result", "Формат каталога в MCP text result"),
+    t("Catalog format in MCP text result", "Формат каталога в текстовом ответе MCP"),
     source.catalog_format || "json",
     [
       ["json", "JSON"],
@@ -415,7 +415,7 @@ async function editSource(pid, record = null) {
   );
   const timeout = connectionField(
     form,
-    t("Total read timeout, seconds", "Общий timeout чтения, секунд"),
+    t("Total read timeout, seconds", "Срок ожидания чтения, секунд"),
     source.timeout || 30,
     "number",
   );
@@ -429,14 +429,14 @@ async function editSource(pid, record = null) {
     form,
     t(
       "Single-file limit, bytes (docs ≤ 1 MiB; catalog ≤ 32 MiB)",
-      "Лимит одного файла, bytes (docs ≤ 1 MiB; catalog ≤ 32 MiB)",
+      "Лимит одного файла, байт (документы ≤ 1 MiB; каталог ≤ 32 MiB)",
     ),
     source.max_bytes || 1048576,
     "number",
   );
   const totalBytes = connectionField(
     form,
-    t("Total read limit, bytes (docs ≤ 10 MiB)", "Лимит всего чтения, bytes (docs ≤ 10 MiB)"),
+    t("Total read limit, bytes (docs ≤ 10 MiB)", "Общий лимит чтения, байт (документы ≤ 10 MiB)"),
     source.max_total_bytes || 10485760,
     "number",
   );
@@ -444,7 +444,7 @@ async function editSource(pid, record = null) {
     form,
     t(
       "Enable source (reading requires separate scope approval)",
-      "Включить источник (чтение требует отдельного принятия scope)",
+      "Включить источник (область доступа для чтения подтверждается отдельно)",
     ),
     source.enabled || false,
     "checkbox",
@@ -453,7 +453,7 @@ async function editSource(pid, record = null) {
   message.setAttribute("role", "alert");
   const submit = element(
     "button",
-    t("Save new source version", "Сохранить новую version источника"),
+    t("Save new source version", "Сохранить новую версию источника"),
   );
   submit.type = "submit";
   form.append(submit, message);

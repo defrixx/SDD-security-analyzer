@@ -456,7 +456,7 @@ def bind_schema(stage: str, schema: dict, data: dict, *, literal_choices: bool =
         field("DeltaOperation", "target_hash", (b["hash"] for b in data["baseline_blocks"]), True)
     elif stage == "P3":
         variants = []
-        for side in ("baseline", "proposed"):
+        for side in data.get("assessment_sides", ("baseline", "proposed")):
             for value in (True, False, None):
                 properties = side_constraint(side, data[side + "_blocks"])
                 properties.update(truth={"const": value})
@@ -470,14 +470,15 @@ def bind_schema(stage: str, schema: dict, data: dict, *, literal_choices: bool =
                     )
                 variants.append({"properties": properties})
         definitions["PredicateFact"]["anyOf"] = variants
-        if len({block["id"] for block in data["baseline_blocks"]}) >= 2:
+        conflict_side = "proposed" if data.get("review_mode") else "baseline"
+        if len({block["id"] for block in data[conflict_side + "_blocks"]}) >= 2:
             definitions["SourceConflict"]["properties"]["evidence"] = conflicting_evidence(
-                "baseline", data["baseline_blocks"]
+                conflict_side, data[conflict_side + "_blocks"]
             )
         else:
             result["properties"]["conflicts"]["maxItems"] = 0
         records = data["requirements"]
-        count = 2 * sum(len(r["applicability"]["predicates"]) for r in records)
+        count = len(data.get("assessment_sides", ("baseline", "proposed"))) * sum(len(r["applicability"]["predicates"]) for r in records)
         result["properties"]["facts"].update(minItems=count, maxItems=count)
         field("PredicateFact", "requirement_id", (r["id"] for r in records))
         field("PredicateFact", "version", (r["version"] for r in records))
@@ -627,13 +628,14 @@ def evidence(
 
 
 def validate_facts(
-    output: FactsOutput, records: list[dict], baseline: dict[str, Block], proposed: dict[str, Block]
+    output: FactsOutput, records: list[dict], baseline: dict[str, Block], proposed: dict[str, Block],
+    *, sides=("baseline", "proposed"), conflict_scope=None
 ):
     by_id = {record["id"]: record for record in records}
     expected = {
         (r["id"], side, p["id"])
         for r in records
-        for side in ("baseline", "proposed")
+        for side in sides
         for p in r["applicability"]["predicates"]
     }
     seen = set()
@@ -672,7 +674,7 @@ def validate_facts(
     for conflict_index, conflict in enumerate(output.conflicts):
         if set(conflict.requirement_ids) - set(by_id):
             raise ValueError("unknown_conflict_requirement")
-        evidence(conflict.evidence, baseline, location=("conflicts", conflict_index, "evidence"))
+        evidence(conflict.evidence, baseline if conflict_scope is None else conflict_scope, location=("conflicts", conflict_index, "evidence"))
         if len({ref.block_id for ref in conflict.evidence}) < 2:
             raise ValueError("source_conflict_requires_two_blocks")
 

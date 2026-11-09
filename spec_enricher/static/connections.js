@@ -55,7 +55,7 @@ async function renderConnections(pid, content, isCurrent) {
   ]);
   if (!isCurrent()) return;
   content.append(
-    element("h2", t("LLM, LM Studio, and read-only MCP", "LLM, LM Studio и read-only MCP")),
+    element("h2", t("LLM, LM Studio, and read-only MCP", "Модели, LM Studio и MCP только для чтения")),
   );
   const network = element("section", "", "panel stack");
   network.append(
@@ -65,11 +65,11 @@ async function renderConnections(pid, content, isCurrent) {
       policy.allow_external_egress
         ? t(
             "Operator policy permits external endpoints. Project data requires separate scope approval.",
-            "Операторская политика допускает внешние endpoints. Для данных проекта требуется отдельное принятие scope.",
+            "Политика установки допускает внешние серверы. Передачу данных продукта нужно подтвердить отдельно.",
           )
         : t(
             "External endpoints are disabled. Local addresses are allowed individually in each profile.",
-            "Внешние endpoints отключены. Локальные адреса разрешаются точечно в каждом профиле.",
+            "Внешние серверы отключены. Локальные адреса разрешаются отдельно в каждом профиле.",
           ),
     ),
   );
@@ -123,6 +123,16 @@ async function renderConnections(pid, content, isCurrent) {
         ),
       ),
     );
+    if (profile.adapter === "lm_studio") {
+      panel.append(action(t("Set up a separate native profile", "Настроить отдельный native-профиль"), () => {
+        const url = new URL(profile.endpoint);
+        url.pathname = url.pathname.replace(/\/v1\/?$/, "/api/v1");
+        editConnection(pid, null, { ...profile, name: `${profile.name} · native`,
+          adapter: "lm_studio_native", endpoint: url.toString().replace(/\/$/, ""),
+          reasoning_effort: "none", output_mode: "prompt_json", enabled: false,
+          temperature: profile.temperature === null ? null : Math.min(profile.temperature, 1) });
+      }));
+    }
     const test = record.capability_report;
     panel.append(
       element(
@@ -151,10 +161,16 @@ async function renderConnections(pid, content, isCurrent) {
         details(t("Live test result", "Результат реальной проверки"), result);
       }),
     );
+    if (test?.result.error === "empty_content_with_reasoning") {
+      panel.append(element("p", t(
+        "The model server replied with reasoning but no final JSON answer. This is an output-format failure, not a connection failure. Review the model's thinking/output settings in LM Studio and the profile's supported reasoning option. Do not use reasoning text as a substitute result; compatibility must pass before analysis.",
+        "Сервер модели ответил рассуждением, но не вернул финальный JSON. Это ошибка формата ответа, а не соединения. Проверьте настройки thinking/вывода модели в LM Studio и поддерживаемую настройку reasoning в профиле. Рассуждение нельзя подставлять вместо результата; перед анализом проверка совместимости должна пройти."
+      ), "notice"));
+    }
     if (test)
       panel.append(
         action(
-          t("View report / model and tool list", "Посмотреть отчёт / список моделей и tools"),
+          t("View report / model and tool list", "Посмотреть отчёт, модели и инструменты"),
           () => details("Capability report", test),
         ),
       );
@@ -164,7 +180,7 @@ async function renderConnections(pid, content, isCurrent) {
     )
       panel.append(
         action(
-          t("Reload mounted credentials", "Перечитать смонтированные credentials"),
+          t("Reload mounted credentials", "Перечитать подключённые учётные данные"),
           async () => {
             await post(`/projects/${pid}/connections/${record.id}/reload-credentials`);
             if (projectId === pid) await render();
@@ -183,7 +199,7 @@ async function renderConnections(pid, content, isCurrent) {
     );
     grant.append(
       action(
-        t("Accept displayed destination and scope", "Принять показанное направление и scope"),
+        t("Accept displayed destination and scope", "Подтвердить адрес и область передачи данных"),
         async () => {
           await post(`/projects/${pid}/connections/${record.id}/grants`, {
             confirmed: true,
@@ -197,14 +213,14 @@ async function renderConnections(pid, content, isCurrent) {
     );
     panel.append(grant);
     panel.append(
-      action(t("Revoke scopes for all revisions", "Отозвать scopes всех revisions"), async () => {
+      action(t("Revoke scopes for all revisions", "Отозвать разрешения всех версий"), async () => {
         await api(`/projects/${pid}/connections/${record.id}/grants`, { method: "DELETE" });
         if (projectId === pid) await render();
       }),
     );
     if (profile.kind === "mcp")
       panel.append(
-        action(t("Bounded read-only call", "Ограниченный read-only вызов"), () =>
+        action(t("Bounded read-only call", "Ограниченный вызов только для чтения"), () =>
           mcpCallDialog(pid, record),
         ),
       );
@@ -214,8 +230,9 @@ async function renderConnections(pid, content, isCurrent) {
 
 /** @param {string} pid
  * @param {RegistryRecord<import('./api.generated').APIConnectionProfile> | null} [record]
+ * @param {Partial<import('./api.generated').APIConnectionProfile> | null} [draftProfile]
  */
-function editConnection(pid, record = null) {
+function editConnection(pid, record = null, draftProfile = null) {
   const content = $("#detail-content");
   content.replaceChildren(
     element(
@@ -227,9 +244,10 @@ function editConnection(pid, record = null) {
   );
   const form = element("form", "", "stack");
   /** @type {Partial<import('./api.generated').APIConnectionProfile>} */
-  const profile = record?.content || {};
+  const profile = record?.content || draftProfile || {};
   const preset = connectionSelect(form, t("Profile", "Профиль"), profile.adapter || "lm_studio", [
-    ["lm_studio", "LM Studio (Docker → host)"],
+    ["lm_studio", "LM Studio (OpenAI API)"],
+    ["lm_studio_native", t("LM Studio native · thinking off available", "LM Studio native · можно отключить thinking")],
     ["openai_compatible", "OpenAI-compatible / gateway"],
     ["streamable_http", "MCP Streamable HTTP"],
   ]);
@@ -246,7 +264,7 @@ function editConnection(pid, record = null) {
       "p",
       t(
         "Container localhost means the container itself. LM Studio on the host is usually available at host.docker.internal; the application does not expose a LAN listener.",
-        "Container localhost — сам контейнер. LM Studio на хосте обычно доступна через host.docker.internal; приложение не открывает listener в LAN.",
+        "localhost внутри контейнера указывает на сам контейнер. LM Studio на компьютере обычно доступна через host.docker.internal; приложение не открывает доступ из локальной сети.",
       ),
       "notice",
     ),
@@ -261,7 +279,7 @@ function editConnection(pid, record = null) {
   );
   const dns = element("pre", t("DNS has not been checked yet.", "DNS ещё не проверялся."));
   form.append(
-    action(t("Show DNS from backend", "Показать DNS из backend"), async () => {
+    action(t("Show DNS from backend", "Проверить DNS с сервера приложения"), async () => {
       dns.textContent = JSON.stringify(
         await post("/connection-diagnostics/resolve", { endpoint: endpoint.value }),
         null,
@@ -274,19 +292,19 @@ function editConnection(pid, record = null) {
     form,
     t(
       "Exact model ID (from capability report / model list)",
-      "Точный model ID (из capability report / списка моделей)",
+      "Точный ID модели (из отчёта проверки или списка моделей)",
     ),
     profile.model || "",
   );
   const auth = connectionSelect(form, t("Authentication", "Авторизация"), profile.auth || "none", [
-    ["none", t("No authentication", "Без auth")],
+    ["none", t("No authentication", "Без авторизации")],
     ["bearer", "Static bearer token"],
   ]);
   const token = connectionField(
     form,
     t(
       "New token — memory only until restart (blank: keep secret reference)",
-      "Новый token — только в памяти до restart (пусто: оставить secret reference)",
+      "Новый токен — в памяти до перезапуска (пусто: сохранить ссылку на секрет)",
     ),
     "",
     "password",
@@ -302,7 +320,7 @@ function editConnection(pid, record = null) {
   );
   const headers = connectionField(
     form,
-    t("Additional non-secret headers (JSON)", "Дополнительные несекретные headers (JSON)"),
+    t("Additional non-secret headers (JSON)", "Дополнительные несекретные заголовки (JSON)"),
     JSON.stringify(profile.headers || {}, null, 2),
     "textarea",
   );
@@ -310,14 +328,14 @@ function editConnection(pid, record = null) {
     form,
     t(
       "Secret headers → secret references (JSON; do not paste key values here)",
-      "Секретные headers → secret references (JSON; значения ключей сюда не вставлять)",
+      "Секретные заголовки → ссылки на секреты (JSON; сами ключи сюда не вставлять)",
     ),
     JSON.stringify(profile.secret_headers || {}, null, 2),
     "textarea",
   );
   const timeout = connectionField(
     form,
-    t("Timeout, seconds", "Timeout, секунд"),
+    t("Timeout, seconds", "Срок ожидания, секунд"),
     profile.timeout || 30,
     "number",
   );
@@ -359,11 +377,11 @@ function editConnection(pid, record = null) {
   );
   const retries = connectionField(
     form,
-    t("Maximum retries (0–2)", "Максимум retry (0–2)"),
+    t("Maximum retries (0–2)", "Максимум повторных попыток (0–2)"),
     profile.retries ?? 2,
     "number",
   );
-  const mode = connectionSelect(form, "JSON contract", profile.output_mode || "json_schema", [
+  const mode = connectionSelect(form, t("JSON contract", "Формат ответа JSON"), profile.output_mode || "json_schema", [
     ["json_schema", "Structured output JSON Schema"],
     [
       "prompt_json",
@@ -373,15 +391,29 @@ function editConnection(pid, record = null) {
       ),
     ],
   ]);
+  const nativeNotice = element("p", t(
+    "Native LM Studio uses /api/v1, explicit prompt JSON and strict local schema validation, not server-enforced structured generation. None disables thinking for this request only. Chat storage, integrations and automatic history-based repair are disabled. Rejected output stops the stage. Create a separate profile to keep your OpenAI-compatible setup.",
+    "Native LM Studio использует /api/v1: JSON по инструкции и строгую локальную проверку схемы, без принудительного формата на стороне модели. None отключает thinking только для запроса. Хранение чата, интеграции и автоматическое исправление через историю отключены. Невалидный ответ останавливает этап. Создайте отдельный профиль, чтобы сохранить настройки OpenAI API."
+  ), "notice");
+  form.append(nativeNotice);
+  const syncNative = () => {
+    const native = preset.value === "lm_studio_native";
+    nativeNotice.hidden = !native;
+    mode.disabled = native;
+    if (native) mode.value = "prompt_json";
+    for (const option of reasoning.options) option.disabled = native && ["minimal", "xhigh"].includes(option.value);
+    if (native && ["minimal", "xhigh"].includes(reasoning.value)) reasoning.value = "none";
+  };
+  syncNative();
   const calls = connectionField(
     form,
-    t("Maximum MCP calls", "Максимум MCP calls"),
+    t("Maximum MCP calls", "Максимум вызовов MCP"),
     profile.max_calls || 100,
     "number",
   );
   const bytes = connectionField(
     form,
-    t("Maximum response/MCP bytes", "Максимум response/MCP bytes"),
+    t("Maximum response/MCP bytes", "Максимальный размер ответа MCP, байт"),
     profile.max_bytes || 2097152,
     "number",
   );
@@ -397,7 +429,7 @@ function editConnection(pid, record = null) {
       "p",
       t(
         "MCP descriptions/annotations are untrusted. Select tools manually using the actual discovery schema. The server may have its own network access; read-only mapping does not isolate its implementation.",
-        "MCP descriptions/annotations недоверенны. Выбирайте tools вручную по реальной схеме из discovery. Сервер может иметь собственную сеть; read-only mapping не изолирует его реализацию.",
+        "Описания и аннотации MCP не являются доверенными инструкциями. Выбирайте инструменты вручную по полученной схеме. Сервер может иметь собственный доступ к сети; вызовы только для чтения не изолируют его реализацию.",
       ),
       "notice",
     ),
@@ -405,12 +437,12 @@ function editConnection(pid, record = null) {
   const scopes = {};
   for (const [key, label] of [
     ["delta", "Delta"],
-    ["baseline_fragments", t("Baseline fragments", "Фрагменты baseline")],
+    ["baseline_fragments", t("Baseline fragments", "Фрагменты текущего состояния")],
     ["catalog", t("Catalog", "Каталог")],
-    ["skill_outputs", t("Skill outputs", "Выходы skills")],
+    ["skill_outputs", t("Skill outputs", "Результаты навыков")],
     [
       "source_queries",
-      t("Read-only source / MCP arguments", "Аргументы read-only источников / MCP"),
+      t("Read-only source / MCP arguments", "Аргументы источников и MCP только для чтения"),
     ],
   ])
     scopes[key] = connectionField(
@@ -423,7 +455,7 @@ function editConnection(pid, record = null) {
     form,
     t(
       "Enable profile (data transfer still requires separate scope approval)",
-      "Включить профиль (передача данных требует ещё отдельного принятия scope)",
+      "Включить профиль (передачу данных нужно подтвердить отдельно)",
     ),
     profile.enabled || false,
     "checkbox",
@@ -441,6 +473,13 @@ function editConnection(pid, record = null) {
       name.value = "LM Studio";
       endpoint.value = "http://host.docker.internal:1234/v1";
     }
+    if (preset.value === "lm_studio_native") {
+      name.value = "LM Studio native";
+      endpoint.value = "http://host.docker.internal:1234/api/v1";
+      reasoning.value = "none";
+      mode.value = "prompt_json";
+    }
+    syncNative();
     if (preset.value === "streamable_http") {
       name.value = "Read-only MCP";
       endpoint.value = "http://host.docker.internal:8000/mcp";
@@ -506,7 +545,7 @@ function editConnection(pid, record = null) {
 
 function mcpCallDialog(pid, record) {
   const content = $("#detail-content");
-  content.replaceChildren(element("h2", "Read-only MCP call"));
+  content.replaceChildren(element("h2", t("Read-only MCP call", "Вызов MCP только для чтения")));
   const form = element("form", "", "stack");
   const allowed = Object.keys(record.content.allowed_tools);
   if (!allowed.length) {
@@ -515,7 +554,7 @@ function mcpCallDialog(pid, record) {
         "p",
         t(
           "Run discovery first, then create a new profile version with an explicit read-only mapping.",
-          "Сначала выполните discovery, затем создайте новую версию профиля с явным read-only mapping.",
+          "Сначала получите список инструментов, затем создайте новую версию профиля с явным сопоставлением вызовов только для чтения.",
         ),
       ),
     );
@@ -524,7 +563,7 @@ function mcpCallDialog(pid, record) {
   }
   const tool = connectionSelect(
     form,
-    t("Allowed tool", "Разрешённый tool"),
+    t("Allowed tool", "Разрешённый инструмент"),
     allowed[0],
     allowed.map((name) => [name, name]),
   );
@@ -537,7 +576,7 @@ function mcpCallDialog(pid, record) {
     form,
     t(
       "JSON arguments (validated against schema and scope)",
-      "Аргументы JSON (будут проверены схемой и scope)",
+      "Аргументы JSON (проверяются по схеме и области доступа)",
     ),
     "{}",
     "textarea",
@@ -546,7 +585,7 @@ function mcpCallDialog(pid, record) {
     "button",
     t(
       "Execute selected bounded read-only call",
-      "Выполнить выбранный ограниченный read-only вызов",
+      "Выполнить ограниченный вызов только для чтения",
     ),
   );
   submit.type = "submit";

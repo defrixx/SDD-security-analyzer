@@ -17,7 +17,7 @@ class ConnectionProfile(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     name: str = Field(min_length=1, max_length=200)
     kind: Literal["llm", "mcp"] = "llm"
-    adapter: Literal["openai_compatible", "lm_studio", "streamable_http"] = "openai_compatible"
+    adapter: Literal["openai_compatible", "lm_studio", "lm_studio_native", "streamable_http"] = "openai_compatible"
     endpoint: str = Field(min_length=8, max_length=2048)
     local_addresses: list[str] = Field(default_factory=list, max_length=16)
     model: str = Field(default="", max_length=300)
@@ -91,6 +91,13 @@ class ConnectionProfile(BaseModel):
         for reference in self.secret_headers.values():
             if not re.fullmatch(r"session:[0-9a-f-]{36}|file:llm_api_key", reference):
                 raise ValueError("invalid header secret reference")
+        if self.adapter == "lm_studio_native":
+            if self.output_mode != "prompt_json":
+                raise ValueError("native_lm_studio_requires_explicit_prompt_json")
+            if self.reasoning_effort not in {None, "none", "low", "medium", "high"}:
+                raise ValueError("unsupported_native_reasoning_setting")
+            if self.temperature is not None and self.temperature > 1:
+                raise ValueError("native_temperature_must_be_between_zero_and_one")
         if self.kind == "llm" and self.adapter == "streamable_http":
             raise ValueError("invalid LLM adapter")
         if self.kind == "mcp" and self.adapter != "streamable_http":

@@ -46,6 +46,8 @@ SAFE_REASONS = {
     "credential_echo_rejected",
     "reasoning_option_not_honored",
     "empty_content_with_reasoning",
+    "unsupported_native_message_layout",
+    "native_lm_studio_requires_explicit_prompt_json",
     "architectural_review_conflicts_must_remain_separate",
     "positive_review_requires_bounded_context_or_question",
 }
@@ -247,7 +249,7 @@ def safe_rejection(exc, stage, *, repair_permitted):
         result["repair_hint"] = REPAIR_HINTS[reason]
     if reason == "model_output_truncated":
         result["recovery_hint"] = (
-            "Provider marked finish_reason=length. Inspect retained raw usage; reduce context/batch "
+            "Provider marked finish_reason=length or native output reached its configured token limit. Inspect retained raw usage; reduce context/batch "
             "or explicitly adjust the output limit and loaded model context before a new run."
         )
     return result

@@ -18,6 +18,7 @@ from .connections import ConnectionProfile
 from .domain import condition
 from .effective_state import Block, Operation, blocks, resolve, target_quote
 from .evaluation import active_clauses, context_only, matrix_row, verification_input
+from . import fact_wire, judgment_wire
 from .llm import LLMAdapter, ModelError, ModelOutputTruncated, repair_text
 from .model_diagnostics import safe_network_failure, safe_output_rejection
 from .network import NetworkError
@@ -29,6 +30,7 @@ from .prompts import (
 from .registry import Registry
 from .retrieval import ContextIndex
 from .run_contracts import RunInput
+from .review_scope import exclusion_guard
 from .runs import RunRepository, now
 from .schema_worker import SchemaValidationUnavailable, validate_payload
 from .secrets import SecretReferenceError
@@ -118,6 +120,9 @@ class PipelineRunner:
             raise ValueError("run_scope")
         self.manifest = run["manifest"]
         self.request = RunInput.model_validate(self.manifest["request"])
+        self.review = self.request.mode == "review_documents"
+        self.sides = ("proposed",) if self.review else ("baseline", "proposed")
+        self.review_coverage_gaps = set()
         self.secret_store, self.adapter_factory = secret_store, adapter_factory
         self.records = []
         for rid, catalog_id in self.manifest["requirement_ownership"].items():
@@ -274,6 +279,16 @@ class PipelineRunner:
                 }
             )
         adapter = self.adapter_factory(self.project_id, profile, self.secret_store)
+        wire_enabled = fact_wire.enabled(
+            stage, profile, contract, prompt or self.manifest["prompts"][stage],
+            prompt=prompt, schema=schema, skill=skill,
+        )
+        # Per-call code-owned opt-in: a user-supplied schema title is not authority.
+        adapter._allow_missing_array_object_open = wire_enabled
+        judgment_wire_enabled = judgment_wire.enabled(
+            stage, profile, contract, prompt or self.manifest["prompts"][stage],
+            prompt=prompt, schema=schema, skill=skill,
+        )
         schema = (
             schema
             if schema is not None
@@ -285,6 +300,13 @@ class PipelineRunner:
             )
         )
         instruction = prompt or self.manifest["prompts"][stage]
+        wire_metadata = None
+        pinned_facts = None
+        if wire_enabled:
+            schema, pinned_facts, wire_metadata = fact_wire.prepare(schema, data["requirements"], data.get("assessment_sides", ("baseline", "proposed")))
+        elif judgment_wire_enabled:
+            schema, wire_metadata = judgment_wire.prepare(schema)
+            instruction = judgment_wire.instruction_for(instruction)
         messages = [
             {
                 "role": "system",
@@ -297,14 +319,32 @@ class PipelineRunner:
                 "content": canonical({"trust": "untrusted_data_only", "data": data}).decode(),
             },
         ]
+        if wire_enabled:
+            messages[0]["content"] += (
+                "\n\nWire contract " + fact_wire.WIRE_CONTRACT
+                + ": do not emit version. The application attaches catalogue version metadata "
+                "from the uniquely pinned requirement/predicate/side after validating your output."
+            )
+        if judgment_wire_enabled:
+            messages[0]["content"] += "\n\n" + judgment_wire.INSTRUCTION
+        if self.review:
+            messages[0]["content"] += (
+                "\nReview-only contract review-documents.v1: assess ONLY side proposed, which "
+                "means the checked documents, not a change or future plan. No baseline comparison "
+                "exists. Do not infer removals or propose edits. Cite supplied checked-document "
+                "blocks. Preserve unknown when evidence is insufficient; conflicts refer to "
+                "the checked documents. Return only requested facts/obligations."
+            )
         base_payload = adapter.payload(messages, schema)
         cache_key = digest(
             {
                 "profile": configured["sha256"],
                 "methodology": self.manifest["methodology_hash"],
                 "stage": stage,
+                "review_contract": self.manifest.get("review_contract_version"),
                 "execution_mode": self.manifest.get("execution_mode", "real_adapter"),
                 "payload": base_payload,
+                **({"wire_metadata": wire_metadata} if wire_metadata else {}),
             }
         )
         cached = self.repo.cached(self.project_id, cache_key)
@@ -335,6 +375,7 @@ class PipelineRunner:
                     "cache_reused": True,
                     "source_artifact": cached["id"],
                     "stage": stage,
+                    **(wire_metadata or {}),
                 },
             )
             return output
@@ -427,7 +468,13 @@ class PipelineRunner:
                 completion = adapter.complete(
                     messages, schema, before_request=before, after_response=after
                 )
-                output = contract.model_validate(completion.value) if contract else completion.value
+                output = (
+                    fact_wire.hydrate(completion.value, schema, pinned_facts)
+                    if wire_enabled
+                    else judgment_wire.decode(completion.value, schema)
+                    if judgment_wire_enabled
+                    else contract.model_validate(completion.value) if contract else completion.value
+                )
                 if validate:
                     validate(output)
                 saved = self.artifact(
@@ -440,6 +487,7 @@ class PipelineRunner:
                         "usage": completion.usage,
                         "format_normalization": completion.format_normalization,
                         "cache_reused": False,
+                        **(wire_metadata or {}),
                     },
                 )
                 self.repo.cache(self.project_id, cache_key, saved["id"])
@@ -477,7 +525,7 @@ class PipelineRunner:
             except (ModelError, ValueError) as exc:
                 # Retain safe diagnostics, never Pydantic input/context or arbitrary
                 # exception text (which can contain model/document/secret values).
-                terminal = isinstance(exc, ModelOutputTruncated) or str(exc) in {
+                terminal = profile.adapter == "lm_studio_native" or isinstance(exc, ModelOutputTruncated) or str(exc) in {
                     "credential_echo_rejected",
                     "reasoning_option_not_honored",
                 }
@@ -486,12 +534,14 @@ class PipelineRunner:
                     stage,
                     repair_permitted=not repaired and not terminal,
                     raw_content=raw_content,
-                    contract=contract,
+                    contract=fact_wire.WireFactsOutput if wire_enabled else contract,
                     output_mode=profile.output_mode,
                 )
                 self.artifact("model.rejection", rejection)
                 if isinstance(exc, ModelOutputTruncated):
                     raise
+                if profile.adapter == "lm_studio_native":
+                    raise ValueError("native_model_contract_rejected_without_repair") from exc
                 if repaired or terminal:
                     raise ValueError("model_contract_rejected_after_bounded_repair") from exc
                 repaired = True
@@ -540,7 +590,7 @@ class PipelineRunner:
                 if checkpoint["outputs"]
                 else self.repo.get(self.project_id, self.run_id)["configuration_snapshot_ref"]
             ]
-            for number in range(checkpoint["next_stage"], 9):
+            for number in range(checkpoint["next_stage"], 7 if self.review else 9):
                 self.check()
                 stage = "P" + str(number)
                 self.envelope = self.repo.stage(
@@ -576,7 +626,7 @@ class PipelineRunner:
                         )
                     self.repo.save_stage(self.project_id, self.envelope)
                     inputs = [output["id"]]
-                    if self.request.step_mode and number < 8:
+                    if self.request.step_mode and number < (6 if self.review else 8):
                         self.repo.set_status(self.project_id, self.run_id, "waiting_approval")
                         return
                 except CallApprovalRequired:
@@ -683,8 +733,9 @@ class PipelineRunner:
                 "catalogs": self.manifest["catalogs"],
             },
         )
-        delta = self.store.document(self.project_id, self.request.delta_document_id)
-        self.artifact("delta.original.md", delta[2])
+        if not self.review:
+            delta = self.store.document(self.project_id, self.request.delta_document_id)
+            self.artifact("delta.original.md", delta[2])
         for snapshot in self.manifest.get("source_snapshots", []):
             source = self.store.connection.execute(
                 "SELECT raw_content,raw_sha256 FROM source_snapshots WHERE project_id=? AND id=?",
@@ -722,6 +773,14 @@ class PipelineRunner:
         return baseline, proposed
 
     def P2(self):
+        if self.review:
+            checked = [asdict(block) for doc in self.state["P1"]["documents"]
+                       for block in blocks(doc["id"], doc["content"].encode())]
+            if not checked:
+                raise ValueError("review_document_empty")
+            return {"mode": "review_documents", "baseline_blocks": [],
+                    "proposed_blocks": checked, "delta_blocks": [], "operations": [],
+                    "unresolved_operations": [], "questions": [], "incomplete": False}
         baseline: list[Block] = []
         context: list[Block] = []
         delta: list[Block] = []
@@ -840,6 +899,8 @@ class PipelineRunner:
                 max_bytes=limit,
                 priority_ids=[block["id"] for block in self.state["P2"]["delta_blocks"]],
             )
+            if self.review and {item.id for item in after} != set(proposed):
+                self.review_coverage_gaps.update(record["id"] for record in records)
             self.artifact("retrieval.trace", {"baseline": log1, "proposed": log2})
             return {item.id: item for item in before}, {item.id: item for item in after}
         finally:
@@ -864,7 +925,7 @@ class PipelineRunner:
                     continue
                 question = record["applicability"]["unknown_when"]
                 questions.append(question)
-                for side in ("baseline", "proposed"):
+                for side in self.sides:
                     facts.append(
                         {
                             "requirement_id": record["id"],
@@ -889,6 +950,8 @@ class PipelineRunner:
                     for key in ("id", "version", "source_context", "applicability")
                 }
                 data = {
+                    "assessment_sides": list(self.sides),
+                    "review_mode": self.review,
                     "requirements": [data_record],
                     "baseline_blocks": [
                         asdict(item) | {"evidence_side": "baseline"} for item in before.values()
@@ -904,10 +967,12 @@ class PipelineRunner:
                     data,
                     FactsOutput,
                     lambda value, partial=partial, before=before, after=after: validate_facts(
-                        value, [partial], before, after
+                        value, [partial], before, after, sides=self.sides,
+                        conflict_scope=after if self.review else None
                     ),
                 )
-                output = self.review_architectural_facts(partial, data, output, before, after)
+                if not self.review:
+                    output = self.review_architectural_facts(partial, data, output, before, after)
                 facts.extend(item.model_dump() for item in output.facts)
                 conflicts.extend(item.model_dump() for item in output.conflicts)
                 questions.extend(output.questions)
@@ -940,7 +1005,8 @@ class PipelineRunner:
             "facts": facts,
             "conflicts": conflicts,
             "questions": list(dict.fromkeys(questions)),
-            "incomplete": bool(conflicts),
+            "incomplete": bool(conflicts) or bool(self.review_coverage_gaps),
+            **({"coverage_gaps": sorted(self.review_coverage_gaps)} if self.review else {}),
         }
 
     def review_architectural_facts(self, record, data, output, before, after):
@@ -997,10 +1063,16 @@ class PipelineRunner:
     def P4(self):
         rows = []
         for record in self.records:
-            for side in ("baseline", "proposed"):
+            for side in self.sides:
                 facts = self.facts_for(record, side)
                 value = condition(record["applicability"]["expression"], facts)
                 active, uncertain = active_clauses(record, facts)
+                guard = None
+                if self.review:
+                    explicit = {item.predicate_id: item.value for item in self.request.fact_overrides
+                                if item.requirement_id == record["id"] and item.side == side}
+                    guard = exclusion_guard(record, facts, explicit)
+                    value = guard["effective_applicability"]
                 rows.append(
                     {
                         "requirement_id": record["id"],
@@ -1010,9 +1082,10 @@ class PipelineRunner:
                         "active_clauses": sorted(active),
                         "uncertain_clauses": sorted(uncertain),
                         "facts": facts,
+                        **({"scope_guard": guard} if self.review else {}),
                     }
                 )
-        return {"rows": rows, "incomplete": False}
+        return {"rows": rows, "incomplete": any(row.get("scope_guard", {}).get("requires_confirmation") for row in rows)}
 
     def P5(self):
         baseline, proposed = self.block_maps()
@@ -1033,7 +1106,7 @@ class PipelineRunner:
             clause_ids = sorted({key[2] for key in keys})
             # Baseline judgments must not see future changes, facts or plans.
             # Proposed judgments retain baseline only for explicit removal proof.
-            for side in ("baseline", "proposed"):
+            for side in self.sides:
                 side_proposed = {} if side == "baseline" else proposed
                 before, after = self.contexts([record], baseline, side_proposed)
                 for start in range(0, len(clause_ids), self.request.limits.batch_size):
@@ -1047,7 +1120,7 @@ class PipelineRunner:
                         continue
                     row = by_side[side]
                     data = {
-                        "assessment_scope": "baseline_only"
+                        "assessment_scope": "document_only" if self.review else "baseline_only"
                         if side == "baseline"
                         else "proposed_with_removal_context",
                         "requirements": [documentary_requirement(record)],
@@ -1108,7 +1181,9 @@ class PipelineRunner:
                     judgments.extend(item.model_dump() for item in output.judgments)
                     questions.extend(output.questions)
                     questions.extend(item.question for item in output.judgments if item.question)
-        return {"judgments": judgments, "questions": questions, "incomplete": False}
+        return {"judgments": judgments, "questions": questions,
+                "incomplete": bool(self.review_coverage_gaps),
+                **({"coverage_gaps": sorted(self.review_coverage_gaps)} if self.review else {})}
 
     def reassess_candidate(self, record, data, output, expected, after):
         """Assess the candidate independently of generator findings/patch history.
@@ -1192,7 +1267,40 @@ class PipelineRunner:
             }
         )
 
+    def review_results(self, failure_reason=None):
+        conflicts = {rid for conflict in self.state.get("P3", {}).get("conflicts", [])
+                     for rid in conflict["requirement_ids"]}
+        adoption = {item.requirement_id: {"mode": item.mode, "reason": item.reason}
+                    for item in self.request.adoption_overrides}
+        rows = []
+        for record in self.records:
+            judgments = {item["clause_id"]: item
+                         for item in self.state.get("P5", {}).get("judgments", [])
+                         if item["requirement_id"] == record["id"] and item["side"] == "proposed"}
+            assessment = matrix_row(record, self.facts_for(record, "proposed"), judgments,
+                                    reason=failure_reason or ("review_context_coverage_incomplete"
+                                        if any(record["id"] in self.state.get(stage, {}).get("coverage_gaps", [])
+                                               for stage in ("P3", "P5")) else None),
+                                    adoption=adoption.get(record["id"]),
+                                    source_conflict=record["id"] in conflicts)
+            if self.review and any(record["id"] in self.state.get(stage, {}).get("coverage_gaps", [])
+                                   for stage in ("P3", "P5")):
+                assessment.update(applicability="unknown", assessment="unknown", enforcement="unknown",
+                                  reason="review_context_coverage_incomplete", incomplete=True)
+            guard = next((row.get("scope_guard", {}) for row in self.state.get("P4", {}).get("rows", [])
+                          if row["requirement_id"] == record["id"]), {})
+            if guard.get("requires_confirmation"):
+                assessment.update(assessment="unknown", enforcement="unknown", incomplete=True,
+                                  reason=guard["reason"], scope_guard=guard)
+                if guard["effective_applicability"] is None:
+                    assessment["applicability"] = "unknown"
+            rows.append({"requirement_id": record["id"], "version": record["version"],
+                         "document": assessment})
+        return rows
+
     def persist_results(self, failure_reason=None):
+        if self.review:
+            return self.review_results(failure_reason)
         rows = []
         conflicts = {
             rid
@@ -1275,6 +1383,49 @@ class PipelineRunner:
         return rows
 
     def P6(self):
+        if self.review:
+            rows = self.review_results()
+            report = {
+                "mode": "review_documents", "review_contract_version": "review-documents.v1",
+                "assessment_scope": "document", "matrix": rows,
+                "findings": [{"requirement_id": row["requirement_id"], "version": row["version"],
+                              "assessment": row["document"]["assessment"],
+                              "reason": row["document"]["reason"]}
+                             for row in rows if row["document"]["assessment"]
+                             in {"unknown", "not_addressed", "contradicted_by_spec"}],
+                "questions": list(dict.fromkeys(self.state["P3"]["questions"] + self.state["P5"]["questions"])),
+                "incomplete": any(row["document"]["incomplete"] for row in rows),
+                "implementation_verification": "not_verified",
+                "review_decisions_supported": False,
+            }
+            for finding in report["findings"]:
+                finding.update(
+                    id="finding-" + digest({"run": self.run_id, "requirement": finding["requirement_id"]})[:24],
+                    type="document_review", explanation=finding["reason"] or finding["assessment"],
+                    evidence_refs=[citation for item in self.state["P5"]["judgments"]
+                                   if item["requirement_id"] == finding["requirement_id"]
+                                   for citation in item["evidence"]],
+                    review_state="unreviewed", review_comment="",
+                )
+            report["scope_confirmations"] = []
+            for row in rows:
+                guard = row["document"].get("scope_guard", {})
+                if not guard.get("requires_confirmation"):
+                    continue
+                record = next(record for record in self.records if record["id"] == row["requirement_id"])
+                descriptions = {p["id"]: p["text"] for p in record["applicability"]["predicates"]}
+                question = "Confirm architectural scope before excluding requirements or conditional obligations: " + record["id"]
+                report["questions"].append(question)
+                report["scope_confirmations"].append({
+                    "requirement_id": record["id"], "version": record["version"],
+                    "reason": guard["reason"], "excluded_clause_ids": guard["excluded_clause_ids"],
+                    "question": question,
+                    "facts": [fact | {"predicate_text": descriptions[fact["predicate_id"]]}
+                              for fact in self.state["P3"]["facts"]
+                              if fact["requirement_id"] == record["id"]],
+                })
+            self.artifact("document.review.json", report)
+            return report
         rows = self.persist_results()
         findings = []
         by_id = {record["id"]: record for record in self.records}

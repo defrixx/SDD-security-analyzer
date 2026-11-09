@@ -77,7 +77,7 @@ function astEditor(parent, title, initial, kind) {
             ]
           : [
               ["clause", "Clause (ID)"],
-              ["all", t("ALL — all clauses", "ALL — все clauses")],
+              ["all", t("ALL — all clauses", "ALL — все части требования")],
               ["any", t("ANY — alternative", "ANY — альтернатива")],
               ["when", "WHEN / THEN / ELSE"],
             ];
@@ -85,7 +85,7 @@ function astEditor(parent, title, initial, kind) {
         panel,
         t(
           `${type === "condition" ? "Applicability" : "Clause"} operator`,
-          `Оператор ${type === "condition" ? "применимости" : "clauses"}`,
+          `Оператор ${type === "condition" ? "применимости" : "частей требования"}`,
         ),
         key,
         options,
@@ -114,7 +114,7 @@ function astEditor(parent, title, initial, kind) {
           panel,
           key === "predicate"
             ? t("Architectural condition ID", "ID архитектурного условия")
-            : "ID clause",
+            : t("ID clause", "ID части требования"),
           current[key] || "",
         );
         input.addEventListener("input", () => {
@@ -162,7 +162,7 @@ function astEditor(parent, title, initial, kind) {
           depth + 1,
         );
       } else if (key === "when") {
-        panel.append(element("h4", "WHEN — guard"));
+        panel.append(element("h4", t("WHEN — condition", "ЕСЛИ — условие")));
         node(
           panel,
           current.when,
@@ -172,7 +172,7 @@ function astEditor(parent, title, initial, kind) {
           "condition",
           depth + 1,
         );
-        panel.append(element("h4", "THEN"));
+        panel.append(element("h4", t("THEN", "ТО")));
         node(
           panel,
           current.then,
@@ -189,7 +189,7 @@ function astEditor(parent, title, initial, kind) {
           current.else === "not_applicable_branch" ? "skip" : "branch",
           [
             ["skip", t("Inactive branch", "Неактивная ветвь")],
-            ["branch", t("Alternative clause logic", "Альтернативная clause logic")],
+            ["branch", t("Alternative clause logic", "Альтернативная логика частей требования")],
           ],
         );
         alternate.addEventListener("change", () => {
@@ -259,7 +259,7 @@ function planEditor(parent, name, original, sourceLevel) {
       );
       const ids = connectionField(
         box,
-        t("Step clause IDs, comma-separated", "Clause IDs шага через запятую"),
+        t("Step clause IDs, comma-separated", "ID частей требования для шага, через запятую"),
         (row.clause_ids || []).join(", "),
       );
       const expected = connectionField(
@@ -276,7 +276,7 @@ function planEditor(parent, name, original, sourceLevel) {
       );
       const when = astEditor(
         box,
-        t("Step guard", "Guard шага"),
+        t("Step guard", "Условие выполнения шага"),
         row.when || { predicate: "" },
         "condition",
       );
@@ -296,7 +296,7 @@ function planEditor(parent, name, original, sourceLevel) {
     (box, row) => {
       const ids = connectionField(
         box,
-        t("Conditional input clause IDs", "Clause IDs условного входа"),
+        t("Conditional input clause IDs", "ID частей требования для условного входа"),
         (row.clause_ids || []).join(", "),
       );
       const values = connectionField(
@@ -307,7 +307,7 @@ function planEditor(parent, name, original, sourceLevel) {
       );
       const when = astEditor(
         box,
-        t("Input guard", "Guard входа"),
+        t("Input guard", "Условие использования входных данных"),
         row.when || { predicate: "" },
         "condition",
       );
@@ -365,7 +365,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       "h2",
       t(
         "Custom requirement · draft → preview → new version",
-        "Собственное требование · draft → preview → новая version",
+        "Собственное требование: черновик → предпросмотр → новая версия",
       ),
     ),
   );
@@ -389,7 +389,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       "p",
       t(
         "The shared user catalog contains authored policy text only. Product documentation, evidence, secrets, and grants are not copied. Binding to another project is a separate action.",
-        "Общий пользовательский каталог содержит только авторский policy text. Документация, evidence, secrets и grants продукта не копируются. Подключение к другому проекту выполняется отдельно.",
+        "Общий пользовательский каталог содержит только авторский текст требований. Документация, доказательства, секреты и разрешения продукта не копируются. Подключение к другому продукту выполняется отдельно.",
       ),
       "notice",
     ),
@@ -402,7 +402,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   id.readOnly = Boolean(existing);
   const version = connectionField(
     form,
-    t("New requirement version", "Новая version требования"),
+    t("New requirement version", "Новая версия требования"),
     fields.version,
   );
   const title = connectionField(form, t("Requirement title", "Название требования"), fields.title);
@@ -417,7 +417,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   const subdomain = connectionField(form, t("Subdomain", "Поддомен"), fields.subdomain);
   const tags = connectionField(
     form,
-    t("Tags, comma-separated", "Tags через запятую"),
+    t("Tags, comma-separated", "Метки через запятую"),
     (fields.tags || []).join(", "),
   );
   const author = connectionField(
@@ -435,19 +435,19 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const kind = connectionSelect(
     form,
-    t("Descriptive source_kind", "Описательный source_kind"),
+    t("Descriptive source_kind", "Тип источника (описательный)"),
     fields.source_kind || "mandatory",
     ["mandatory", "recommended", "review_criterion", "local_assumption"].map((key) => [key, key]),
   );
   const level = connectionSelect(
     form,
-    t("Descriptive record evidence level", "Описательный evidence level записи"),
+    t("Descriptive record evidence level", "Уровень подтверждения записи (описательный)"),
     fields.level || "specification",
     ["specification", "implementation", "process"].map((key) => [key, key]),
   );
   const severity = connectionSelect(
     form,
-    t("Source policy severity", "Severity исходной политики"),
+    t("Source policy severity", "Критичность по исходной политике"),
     fields.severity || "unrated",
     ["unrated", "critical", "high", "medium", "low"].map((key) => [key, key]),
   );
@@ -458,7 +458,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
     form,
     t(
       "Project importance (separate from upstream severity)",
-      "Проектная важность (отдельно от upstream severity)",
+      "Важность для продукта (отдельно от критичности исходной политики)",
     ),
     currentRanking?.ranking || "unranked",
     ["unranked", "critical", "high", "normal", "low"].map((key) => [key, key]),
@@ -481,7 +481,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       "p",
       t(
         "Force and nature are set per clause. Source kind and record level do not assign normative force. Runtime implementation is always not_verified.",
-        "Force и nature задаются каждой clause отдельно. Source kind и record level не назначают нормативную силу. Runtime implementation всегда not_verified.",
+        "Обязательность и тип задаются для каждой части требования отдельно. Тип источника и уровень записи не определяют обязательность. Реализация продукта не проверяется.",
       ),
       "notice",
     ),
@@ -527,7 +527,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const applicability = astEditor(
     form,
-    t("Applicability logic — separate AST", "Логика применимости — отдельный AST"),
+    t("Applicability logic — separate AST", "Логика применимости — отдельное дерево условий"),
     fields.applicability?.expression,
     "condition",
   );
@@ -542,25 +542,25 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const clauses = rowEditor(
     form,
-    t("Clauses and normative force", "Clauses и нормативная сила"),
+    t("Clauses and normative force", "Части требования и их обязательность"),
     fields.clauses?.length ? fields.clauses : [{ id: "c1" }],
     (card, item) => {
       const norm = fields.clause_normativity?.[item.id] || {};
-      const key = connectionField(card, "ID clause", item.id || "");
+      const key = connectionField(card, t("ID clause", "ID части требования"), item.id || "");
       const text = connectionField(
         card,
-        t("Clause obligation", "Обязанность clause"),
+        t("Clause obligation", "Обязанность части требования"),
         item.obligation || "",
         "textarea",
       );
       const force = connectionSelect(
         card,
-        "Force clause",
+        t("Force clause", "Обязательность части"),
         norm.force || "undetermined",
         ["required", "recommended", "not_a_requirement", "undetermined"].map((key) => [key, key]),
       );
-      const nature = connectionSelect(card, "Nature clause", norm.nature || "", [
-        ["", t("Select nature", "Выберите nature")],
+      const nature = connectionSelect(card, t("Nature clause", "Тип части требования"), norm.nature || "", [
+        ["", t("Select nature", "Выберите тип")],
         ...[
           "technical_control",
           "review_obligation",
@@ -571,7 +571,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       ]);
       const basis = connectionField(
         card,
-        t("Basis for clause force", "Основание силы clause"),
+        t("Basis for clause force", "Основание обязательности"),
         norm.basis || "",
         "textarea",
       );
@@ -579,14 +579,14 @@ async function editRequirement(pid, existing = null, initialFields = null) {
         card,
         t(
           "Clause conditions and exceptions (one per line)",
-          "Условия и исключения clause (по одному на строку)",
+          "Условия и исключения части требования (по одному на строку)",
         ),
         (norm.qualifiers || []).join("\n"),
         "textarea",
       );
       const evidenceLevel = connectionSelect(
         card,
-        "Evidence level clause",
+        t("Evidence level clause", "Уровень подтверждения"),
         norm.evidence_level || "specification",
         ["specification", "implementation", "process"].map((key) => [key, key]),
       );
@@ -606,7 +606,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const logic = astEditor(
     form,
-    t("Clause logic — ALL / ANY / WHEN / ELSE", "Логика clauses — ALL / ANY / WHEN / ELSE"),
+    t("Clause logic — ALL / ANY / WHEN / ELSE", "Логика частей требования: все / любое / если / иначе"),
     fields.clause_logic || { clause: "c1" },
     "clause",
   );
@@ -618,7 +618,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const implementation = planEditor(
     form,
-    t("Implementation / process evidence plan", "Evidence plan реализации / процесса"),
+    t("Implementation / process evidence plan", "План подтверждения реализации или процесса"),
     fields.verification?.source_level,
     true,
   );
@@ -633,7 +633,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
   );
   const questions = connectionField(
     form,
-    t("Open semantic questions (one per line)", "Открытые semantic вопросы (по одному на строку)"),
+    t("Open semantic questions (one per line)", "Открытые вопросы по смыслу (по одному на строку)"),
     (existing?.questions || []).join("\n"),
     "textarea",
   );
@@ -735,7 +735,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
     id.readOnly = true;
     scope.disabled = true;
     setStatus(
-      t(`Draft saved · revision ${draft.revision}`, `Draft сохранён · revision ${draft.revision}`),
+      t(`Draft saved · revision ${draft.revision}`, `Черновик сохранён · версия ${draft.revision}`),
     );
     return draft;
   }
@@ -746,10 +746,10 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       `/requirement-drafts/${reviewedDraft.scope}/${owner}/${reviewedDraft.draft_id}/preview`,
     );
     preview.replaceChildren(
-      element("h3", "Preview / structural validation"),
+      element("h3", t("Preview / structural validation", "Предпросмотр и проверка структуры")),
       element(
         "p",
-        `Scope: ${reviewedDraft.scope}. Semantic review: not_performed; implementation: not_verified.`,
+        t(`Scope: ${reviewedDraft.scope}. Semantic review: not_performed; implementation: not_verified.`, `Область действия: ${reviewedDraft.scope}. Смысловая проверка не проведена; реализация не проверена.`),
       ),
       element("pre", JSON.stringify(result, null, 2)),
     );
@@ -757,7 +757,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       preview,
       t(
         "I accept the displayed scope, authorship, conditions, and normative force",
-        "Принимаю показанный scope, авторство, условия и нормативную силу",
+        "Принимаю показанную область действия, авторство, условия и обязательность",
       ),
       false,
       "checkbox",
@@ -766,7 +766,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       preview,
       t(
         "Bind this new version to the selected product only",
-        "Подключить эту новую version только к выбранному продукту",
+        "Подключить новую версию только к выбранному продукту",
       ),
       false,
       "checkbox",
@@ -776,7 +776,7 @@ async function editRequirement(pid, existing = null, initialFields = null) {
       preview,
       t(
         "Explicitly disable the previous binding of this custom requirement when enabling the new one",
-        "Явно отключить предыдущую binding этого собственного требования при включении новой",
+        "Отключить предыдущую версию этого требования при включении новой",
       ),
       false,
       "checkbox",
@@ -785,12 +785,12 @@ async function editRequirement(pid, existing = null, initialFields = null) {
     commitButton = action(
       t(
         "Save a new requirement version from preview",
-        "Сохранить новую version требования по preview",
+        "Сохранить новую версию требования из предпросмотра",
       ),
       async () => {
         if (!confirmed.checked)
           throw new Error(
-            t("Accept the displayed scope and content.", "Примите показанные scope и содержание."),
+            t("Accept the displayed scope and content.", "Примите показанную область действия и содержание."),
           );
         if (
           reviewedDraft.scope === "project" &&
@@ -867,7 +867,7 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
         "a",
         t(
           `${kind === "blank" ? "Draft template" : "Synthetic example"} ${format.toUpperCase()}`,
-          `${kind === "blank" ? "Draft-шаблон" : "Synthetic пример"} ${format.toUpperCase()}`,
+          `${kind === "blank" ? "Шаблон черновика" : "Синтетический пример"} ${format.toUpperCase()}`,
         ),
       );
       link.href = `/api/v1/requirement-templates/${kind}/${format}`;
@@ -879,7 +879,7 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
       "p",
       t(
         "The template is incomplete; the example is synthetic. Downloading does not enable the policy.",
-        "Шаблон неполный; пример синтетический. Скачивание не включает policy.",
+        "Шаблон неполный; пример синтетический. Скачивание не подключает требования.",
       ),
       "notice",
     ),
@@ -887,7 +887,7 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
   );
   for (const draft of drafts)
     panel.append(
-      action(`Draft: ${draft.fields.title || draft.fields.id} · r${draft.revision}`, () =>
+      action(t(`Draft: ${draft.fields.title || draft.fields.id} · r${draft.revision}`, `Черновик: ${draft.fields.title || draft.fields.id} · r${draft.revision}`), () =>
         editRequirement(pid, draft),
       ),
     );
@@ -928,7 +928,7 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
               "p",
               t(
                 "Bindings pin a version; new versions do not automatically update other projects.",
-                "Bindings закреплены по version; новые версии не обновляют другие проекты автоматически.",
+                "Подключения закреплены за версией; новые версии не обновляют другие продукты автоматически.",
               ),
               "notice",
             ),
@@ -938,19 +938,19 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
               action(
                 t(
                   `Edit draft ${draft.fields.title || draft.fields.id}`,
-                  `Редактировать draft ${draft.fields.title || draft.fields.id}`,
+                  `Редактировать черновик ${draft.fields.title || draft.fields.id}`,
                 ),
                 () => editRequirement(pid, draft),
               ),
             );
           for (const version of versions)
             box.append(
-              element("h3", `Version ${version.revision}`),
+              element("h3", t(`Version ${version.revision}`, `Версия ${version.revision}`)),
               element("pre", JSON.stringify(version, null, 2)),
               action(
                 t(
                   `Explicitly bind displayed version ${version.revision} to the current product`,
-                  `Явно подключить показанную version ${version.revision} к текущему продукту`,
+                  `Подключить показанную версию ${version.revision} к текущему продукту`,
                 ),
                 async () => {
                   await post(`/projects/${pid}/user-catalogue-bindings`, {
@@ -966,7 +966,7 @@ async function authoringPanel(pid, content, isCurrent = () => projectId === pid)
               action(
                 t(
                   `Remove version ${version.revision} from instance registry · preview`,
-                  `Удалить version ${version.revision} из instance registry · preview`,
+                  `Удалить версию ${version.revision} из реестра установки · предпросмотр`,
                 ),
                 () => deleteUserCatalogueVersion(item.id, version.revision),
               ),

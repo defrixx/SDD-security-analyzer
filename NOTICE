@@ -12,6 +12,10 @@ The pinned catalog and source prose retain **Creative Commons Attribution 4.0 In
 
 The MIT license for the application does not relicense `catalog/`, `sources/`, inherited catalog provenance under `qa/`, or original handoff fixtures/templates. Their existing per-file, per-record, upstream, and third-party terms continue to apply. No license is invented for material whose metadata does not state one. User-authored documents, imported policies, project data, and model outputs are not licensed by the application LICENSE.
 
+## Imported skill instructions
+
+Importing a SKILL.md file as a draft does not grant a new license to its text or referenced resources. The source author's copyright, license, attribution, and redistribution conditions continue to apply. Review the source package's terms before sharing an imported or adapted prompt. The application does not bundle or install the complete source skill package through this importer.
+
 ## Dependencies and redistributed artifacts
 
 Dependencies retain their own licenses. Runtime Python dependencies include MIT, BSD-3-Clause, Apache-2.0, PSF-2.0, and MPL-2.0 components. The UI has no runtime npm dependencies.

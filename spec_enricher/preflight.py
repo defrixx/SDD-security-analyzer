@@ -38,7 +38,9 @@ def prepare(store: Store, project_id: str, request: RunInput):
     documents = []
     source_snapshots = []
     source_config_refs = {}
-    all_ids = [
+    review = request.mode == "review_documents"
+    model_stages = ("P3", "P5") if review else MODEL_STAGES
+    all_ids = request.review_document_ids if review else [
         request.delta_document_id,
         *request.baseline_document_ids,
         *request.context_document_ids,
@@ -53,14 +55,16 @@ def prepare(store: Store, project_id: str, request: RunInput):
         ).fetchone()
         if row is None or sha256(row[3]) != row[4]:
             raise ValueError("missing_or_changed_project_snapshot")
-        role = (
+        if review and not row[3].strip():
+            raise ValueError("review_document_empty")
+        role = "review" if review else (
             "delta"
             if document_id == request.delta_document_id
             else "master_spec"
             if document_id in request.baseline_document_ids
             else "context"
         )
-        if (role == "delta") != (row[1] == "delta"):
+        if not review and (role == "delta") != (row[1] == "delta"):
             raise ValueError("document_role_conflict")
         if role != "delta":
             size += len(row[3])
@@ -194,6 +198,8 @@ def prepare(store: Store, project_id: str, request: RunInput):
             ownership.setdefault(record["id"], catalog_id)
     if len(records) > 5000 or len(canonical(list(records.values()))) > 32 * 1024 * 1024:
         raise ValueError("effective_catalog_limit")
+    if review and not records:
+        raise ValueError("review_requires_active_requirements")
     for record in records.values():
         for dep in record.get("dependencies", []):
             target = records.get(dep["requirement_id"])
@@ -265,7 +271,7 @@ def prepare(store: Store, project_id: str, request: RunInput):
     configurations = {}
     destinations = []
     refs = {}
-    for stage in MODEL_STAGES:
+    for stage in model_stages:
         reference = request.stage_models.get(stage, request.connection)
         record, profile = registry.require_egress(
             project_id,
@@ -312,7 +318,10 @@ def prepare(store: Store, project_id: str, request: RunInput):
     algorithm_hashes = current_algorithm_hashes()
     manifest = {
         "app_version": "1.0.0",
-        "pipeline_version": "1.0.0",
+        "pipeline_version": "review-documents.v1" if review else "1.0.0",
+        "review_scope_policy": "review-scope-confirmation.v1" if review else None,
+        "mode": request.mode,
+        "review_contract_version": "review-documents.v1" if review else None,
         "catalog_schema": "4.0",
         "project_id": project_id,
         "documents": documents,
@@ -358,11 +367,11 @@ def prepare(store: Store, project_id: str, request: RunInput):
                 + (["core.P8.candidate_documentary_reassessment"] if stage == "P8" else [])
                 + (
                     ["core.P3.architectural_fact_review_if_negative_or_conflicting"]
-                    if stage == "P3"
+                    if stage == "P3" and not review
                     else []
                 ),
             }
-            for stage in MODEL_STAGES
+            for stage in model_stages
         ],
         "request": request.model_dump(),
         "application_policy": POLICY,
@@ -370,6 +379,9 @@ def prepare(store: Store, project_id: str, request: RunInput):
         "methodology_hash": digest(
             {
                 "policy": POLICY,
+                "review_scope_policy": "review-scope-confirmation.v1" if review else None,
+                "mode": request.mode,
+                "review_contract_version": "review-documents.v1" if review else None,
                 "prompts": prompts,
                 "documentary_assessment_recipe": DOCUMENTARY_ASSESSMENT_RECIPE,
                 "candidate_reassessment_prompt": candidate_reassessment_prompt(prompts["P5"]),

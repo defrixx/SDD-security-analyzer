@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+globalThis.localStorage = { getItem: () => process.env.SDD_TEST_LANG || "en" };
+const { combineSpecification } = await import("../spec_enricher/static/files.js");
+const originals = [new File(["# Proposal\nРусский текст"], "proposal.md"), new File(["# Design\nAuth"], "design.MD")];
+const result = await combineSpecification(originals);
+assert.equal(result.name, "specification-bundle.md");
+assert.equal(await result.text(), "## File: proposal.md\n\n# Proposal\nРусский текст\n\n---\n\n## File: design.MD\n\n# Design\nAuth");
+assert.equal(await originals[0].text(), "# Proposal\nРусский текст");
+await assert.rejects(() => combineSpecification([]));
+await assert.rejects(() => combineSpecification(Array(21).fill(originals[0])));
+await assert.rejects(() => combineSpecification([new File(["{}"], "spec.json")]));
+await assert.rejects(() => combineSpecification([new File(["я".repeat(52000)], "large.md")]));
+await assert.rejects(() => combineSpecification([new File(["x".repeat(100 * 1024)], "headings.md")]));
+console.log(`PASS: combined Markdown contents, names, original preservation, count, extension, UTF-8 and heading limits (${process.env.SDD_TEST_LANG || "en"})`);

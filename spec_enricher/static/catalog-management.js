@@ -36,7 +36,7 @@ function logicText(node) {
       () => `ANY (${node.any.map(logicText).join("; ")})`,
       () => `ХОТЯ БЫ ОДНО (${node.any.map(logicText).join("; ")})`,
     );
-  return t("Unknown logic; review required", "Неизвестная логика; требуется review");
+  return t("Unknown logic; review required", "Неизвестная логика; требуется проверка");
 }
 
 export function requirementDetails(value) {
@@ -44,20 +44,20 @@ export function requirementDetails(value) {
   const panel = $("#detail-content");
   panel.replaceChildren(
     element("h2", value.title),
-    element("p", `${value.id} · version ${value.version} · ${value.status}`),
+    element("p", t(`${value.id} · version ${value.version} · ${value.status}`, `${value.id} · версия ${value.version} · ${value.status}`)),
     element("p", value.statement),
     element(
       "p",
       `${value.domain} / ${value.subdomain} · source_kind ${value.source_kind} · level ${value.level} · severity ${value.severity}`,
     ),
-    element("p", `Profile: ${value.source_context.profile}`),
+    element("p", t(`Profile: ${value.source_context.profile}`, `Профиль: ${value.source_context.profile}`)),
     element("h3", t("Applicability", "Применимость")),
     element("p", logicText(value.applicability.expression)),
   );
   for (const predicate of value.applicability.predicates)
     panel.append(element("p", `${predicate.id}: ${predicate.text}`));
   panel.append(
-    element("p", `Unknown: ${value.applicability.unknown_when}`),
+    element("p", t(`Unknown: ${value.applicability.unknown_when}`, `Неизвестно: ${value.applicability.unknown_when}`)),
     element("h3", t("Requirement clauses and their force", "Части требования и их сила")),
     element("p", logicText(value.clause_logic)),
   );
@@ -74,7 +74,7 @@ export function requirementDetails(value) {
           () => `Основание: ${norm.basis}`,
         ),
       ),
-      element("p", `Qualifiers: ${norm.qualifiers.join("; ")}`),
+      element("p", t(`Qualifiers: ${norm.qualifiers.join("; ")}`, `Условия и исключения: ${norm.qualifiers.join("; ")}`)),
     );
     panel.append(section);
   }
@@ -83,7 +83,7 @@ export function requirementDetails(value) {
       "p",
       t(
         "Force is defined per clause. Context is excluded before ALL/ANY; source_kind does not change force. Accepted required defaults apply without a second numeric opt-in. Implementation: not_verified.",
-        "Сила задана каждой частью. Context исключается до ALL/ANY; source_kind не меняет force. Принятые required defaults действуют без второго numeric opt-in. Implementation: not_verified.",
+        "Обязательность задана для каждой части. Контекст исключается до проверки «все / любое»; тип источника не меняет обязательность. Принятые обязательные значения по умолчанию действуют без повторного числового подтверждения. Реализация продукта не проверяется.",
       ),
       "notice",
     ),
@@ -97,11 +97,11 @@ export function requirementDetails(value) {
       value.verification.specification,
     ],
     [
-      t("Source-level evidence plan · not executed", "Source-level evidence plan · не исполняется"),
+      t("Source-level evidence plan · not executed", "План проверки исходных материалов · не исполняется"),
       value.verification.source_level,
     ],
     [
-      t("Full metadata, relations, and provenance", "Полные метаданные, relations и provenance"),
+      t("Full metadata, relations, and provenance", "Полные метаданные, связи и происхождение"),
       value,
     ],
   ]) {
@@ -139,7 +139,7 @@ export async function domainPanel(pid, panel, isCurrent) {
   const coverage = await api("/builtin-catalog/coverage");
   if (!isCurrent()) return;
   panel.append(
-    action(t("Coverage of 26 sources and exclusions", "Покрытие 26 источников и exclusions"), () =>
+    action(t("Coverage of 26 sources and exclusions", "Покрытие 26 источников и исключения"), () =>
       details(t("Source coverage", "Покрытие источников"), coverage),
     ),
   );
@@ -166,7 +166,7 @@ export async function domainPanel(pid, panel, isCurrent) {
     choices.push(check);
   }
   group.append(
-    action(t("Preview selected domains", "Preview выбранных областей"), async () => {
+    action(t("Preview selected domains", "Предпросмотр выбранных областей"), async () => {
       const selected = choices.filter((item) => item.checked).map((item) => item.value);
       if (!selected.length)
         throw new Error(
@@ -179,13 +179,13 @@ export async function domainPanel(pid, panel, isCurrent) {
       details(
         t(
           "Scope and dependency closure of selected domains",
-          "Scope и dependency closure выбранных областей",
+          "Состав выбранных областей с учётом зависимостей",
         ),
         preview,
       );
       if (!preview.issues.length)
         $("#detail-content").append(
-          action(t("Accept this scope and enable", "Принять этот scope и включить"), async () => {
+          action(t("Accept this scope and enable", "Принять этот состав и подключить"), async () => {
             await post(`/projects/${pid}/catalog-imports/${preview.id}/commit`, {
               confirmed: true,
               expected_sha256: preview.sha256,
@@ -201,19 +201,19 @@ export async function domainPanel(pid, panel, isCurrent) {
 
 export async function updateDialog(pid, candidate) {
   const catalogs = await api(`/projects/${pid}/catalogs`);
-  details(t("Catalog update preview", "Preview обновления каталога"), "");
+  details(t("Catalog update preview", "Предпросмотр обновления каталога"), "");
   const panel = $("#detail-content");
   panel.append(
     element(
       "p",
       t(
         "Select a previous version from the same series. Preview shows changes to guards, force/nature, clause IDs, and local conflicts. History remains unchanged.",
-        "Выберите прежнюю версию той же серии. Preview показывает изменения guards, force/nature, clause IDs и локальные conflicts. История остаётся неизменной.",
+        "Выберите прежнюю версию той же серии. Предпросмотр показывает изменения условий, обязательности, типов и ID частей требования, а также локальные конфликты. История остаётся неизменной.",
       ),
       "notice",
     ),
   );
-  const previous = connectionSelect(panel, t("Previous snapshot", "Предыдущий snapshot"), "", [
+  const previous = connectionSelect(panel, t("Previous snapshot", "Предыдущий снимок"), "", [
     ["", t("Select a version", "Выберите версию")],
     ...catalogs
       .filter((item) => item.id !== candidate.candidate_catalog_version_id)
@@ -224,19 +224,19 @@ export async function updateDialog(pid, candidate) {
   ]);
   const mappings = connectionField(
     panel,
-    "Clause mappings JSON · old requirement/clause → targets",
+    t("Clause mappings JSON · old requirement/clause → targets", "Сопоставление частей JSON: прежнее требование/часть → новые части"),
     "[]",
     "textarea",
   );
   const records = connectionField(
     panel,
-    "Record mappings JSON · old requirement → target requirement IDs",
+    t("Record mappings JSON · old requirement → target requirement IDs", "Сопоставление записей JSON: прежнее требование → ID новых требований"),
     "[]",
     "textarea",
   );
   const retirements = connectionField(
     panel,
-    "Retirements JSON · removed requirement ID → reason",
+    t("Retirements JSON · removed requirement ID → reason", "Удалённые требования JSON: ID → причина"),
     "{}",
     "textarea",
   );
@@ -251,7 +251,7 @@ export async function updateDialog(pid, candidate) {
   );
   const result = element("section", "", "stack");
   panel.append(
-    action(t("Check changes and mappings", "Проверить изменения и mappings"), async () => {
+    action(t("Check changes and mappings", "Проверить изменения и сопоставления"), async () => {
       if (!previous.value)
         throw new Error(t("Select a previous version.", "Выберите прежнюю версию."));
       const selection = {
@@ -278,7 +278,7 @@ export async function updateDialog(pid, candidate) {
           action(
             t(
               "Accept preview · install inactive version",
-              "Принять preview · установить неактивную версию",
+              "Принять предпросмотр и сохранить неактивную версию",
             ),
             () => accept(false),
           ),
@@ -288,7 +288,7 @@ export async function updateDialog(pid, candidate) {
             action(
               t(
                 "Accept preview · activate and disable previous binding",
-                "Принять preview · активировать и отключить прежний binding",
+                "Принять предпросмотр, подключить новую версию и отключить прежнюю",
               ),
               () => accept(true),
             ),

@@ -14,6 +14,10 @@ from spec_enricher.stage_contracts import JudgmentsOutput
 class JudgmentBatchingTests(unittest.TestCase):
     def test_baseline_skills_cannot_reintroduce_future_annotations_through_any_hook(self):
         runner = PipelineRunner.__new__(PipelineRunner)
+        # These isolated stage tests exercise the legacy comparison mode.
+        runner.review = False
+        runner.sides = ("baseline", "proposed")
+        runner.review_coverage_gaps = set()
         runner.skill_outputs = [
             {"stage": "P3", "output": {"note": "FUTURE_ONLY_SENTINEL"}},
             {
@@ -62,6 +66,10 @@ class JudgmentBatchingTests(unittest.TestCase):
 
     def test_side_batches_preserve_asymmetric_active_guards_exactly_once(self):
         runner = PipelineRunner.__new__(PipelineRunner)
+        # These isolated stage tests exercise the legacy comparison mode.
+        runner.review = False
+        runner.sides = ("baseline", "proposed")
+        runner.review_coverage_gaps = set()
         record = {
             key: {} for key in ("clauses", "clause_logic", "clause_normativity", "source_context")
         }
@@ -118,6 +126,10 @@ class JudgmentBatchingTests(unittest.TestCase):
 
     def test_baseline_assessment_and_retrieval_exclude_future_data(self):
         runner = PipelineRunner.__new__(PipelineRunner)
+        # These isolated stage tests exercise the legacy comparison mode.
+        runner.review = False
+        runner.sides = ("baseline", "proposed")
+        runner.review_coverage_gaps = set()
         clause = {"id": "one", "obligation": "Describe the complete applicable policy."}
         normativity = {"force": "required", "nature": "technical"}
         record = {

@@ -5,7 +5,7 @@
   --blue: #000080;
   --white: #fff;
   --border: #404040;
-  --focus: #7b2600;
+  --focus: #155eef;
   --raised:
     inset 1px 1px #fff, inset -1px -1px #404040, inset 2px 2px #dfdfdf, inset -2px -2px #808080;
   --sunken: inset 1px 1px #404040, inset -1px -1px #fff, inset 2px 2px #808080;
@@ -60,7 +60,7 @@ a.download-action {
 }
 :focus-visible {
   outline: 3px solid var(--focus);
-  outline-offset: 3px;
+  outline-offset: -3px;
 }
 input,
 textarea,
@@ -138,7 +138,7 @@ h3 {
 nav {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   padding: 10px;
 }
 nav button {
@@ -418,3 +418,67 @@ dialog {
 .language-control .muted {
   font-size: 14px;
 }
+
+/* Consistent spacing also covers older panels that append actions directly. */
+.panel > button, #content > button, #detail-content > button, td > button,
+.logic-node > button, .disclosure > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
+  margin: 5px 8px 5px 0;
+  max-width: calc(100% - 8px);
+}
+.stack > button, .actions > button { margin: 0; }
+summary { cursor: pointer; padding: 10px 2px; font-weight: 600; }
+.disclosure[open] > summary { margin-bottom: 14px; }
+.disclosure { margin-top: 16px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.toolbar .language-control { margin-left: auto; }
+.toolbar .language-control select { min-width: 100px; flex: none; }
+.file-picker { position: relative; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-width: 0; padding: 4px; }
+.file-picker-trigger { display: inline-block; padding: 10px 16px; background: var(--panel); box-shadow: var(--raised); min-height: 44px; }
+.file-picker input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.file-picker:focus-within { outline: 3px solid var(--focus); outline-offset: -3px; }
+.file-picker-selection { overflow-wrap: anywhere; min-width: 0; flex: 1 1 160px; }
+#detail-content { padding-bottom: 16px; }
+@media (max-width: 480px) {
+  .toolbar { gap: 10px; }
+  .toolbar > #project { flex-basis: 65%; }
+  nav button { flex: 1 1 130px; }
+  main { padding: 12px; }
+  .panel { padding: 12px; }
+  .actions > button { flex: 1 1 180px; }
+}
+
+[hidden] { display: none !important; }
+.disclosure > label { display: block; margin: 10px 0 6px; }
+.disclosure > select { width: 100%; }
+
+/* A compact, keyboard-scrollable section row leaves room for the task on phones. */
+@media (max-width: 768px) {
+  nav { flex-wrap: nowrap; overflow-x: auto; min-width: 0; padding-bottom: 14px; }
+  nav button { flex: 0 0 auto; white-space: nowrap; }
+  .titlebar h1 { min-width: 0; overflow-wrap: anywhere; }
+}
+
+button.primary { background: #000080; color: white; font-weight: 600; }
+button.primary:disabled { background: #e0e7f2; color: #263b55; }
+
+/* Primary task navigation stays separate from optional configuration groups. */
+.analysis-navigation { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.analysis-navigation > button { flex: 0 1 auto; min-height: 44px; }
+.analysis-navigation [aria-current="page"] { font-weight: 700; box-shadow: var(--sunken); background: #fff; }
+.settings-group > summary { min-height: 44px; overflow-wrap: anywhere; }
+.settings-group > section { min-width: 0; }
+.toolbar > .product-overview { flex: 0 1 auto; }
+@media (max-width: 480px) {
+  .analysis-navigation > button { flex: 1 1 150px; }
+  .toolbar > .product-overview { flex: 1 1 140px; }
+}
+@media (max-width: 768px) {
+  .workspace > nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; padding-bottom: 10px; }
+  .workspace > nav button { min-width: 0; white-space: normal; text-align: center; }
+}
+
+#back-to-top { display: inline-flex; align-items: center; min-height: 44px; padding: 8px; flex-basis: 100%; }

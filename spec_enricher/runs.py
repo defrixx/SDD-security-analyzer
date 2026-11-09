@@ -33,7 +33,8 @@ class RunRepository:
             (project_id, request_key),
         ).fetchone()
         if existing:
-            if existing[1] != checksum:
+            from .run_contracts import matches_request_checksum
+            if not matches_request_checksum(existing[1], request):
                 raise RunConflict("idempotency_conflict")
             return existing[0], False
         run_id = str(uuid.uuid4())
@@ -208,7 +209,9 @@ class RunRepository:
                     completed[stage["stage_id"]] = artifact
                     break
         prefix = []
-        for number in range(9):
+        run = self.get(project_id, run_id)
+        review = run["manifest"]["request"].get("mode") == "review_documents"
+        for number in range(7 if review else 9):
             if "P" + str(number) not in completed:
                 break
             prefix.append(completed["P" + str(number)])
@@ -216,13 +219,15 @@ class RunRepository:
 
         pending = pending_call(self, project_id, run_id)
         return {
+            "mode": "review_documents" if review else "enrich_changes",
             "next_stage": len(prefix),
             "outputs": prefix,
-            "sha256": digest(
-                {"completed": [item["sha256"] for item in prefix], "pending_call": pending}
-            )
-            if pending
-            else digest([item["sha256"] for item in prefix]),
+            "sha256": digest({"review_contract_version": "review-documents.v1",
+                              "completed": [item["sha256"] for item in prefix],
+                              "pending_call": pending}) if review else (
+                digest({"completed": [item["sha256"] for item in prefix], "pending_call": pending})
+                if pending else digest([item["sha256"] for item in prefix])
+            ),
             "pending_call": pending,
         }
 

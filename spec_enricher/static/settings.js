@@ -2,6 +2,7 @@ import { t, getLanguage } from "./i18n.js";
 import { connectionField } from "./connections.js";
 import { checkedList } from "./runs.js";
 import {
+  filePicker,
   csrf,
   projectId,
   projects,
@@ -27,7 +28,7 @@ async function renderSettings(content, isCurrent) {
       "p",
       t(
         "Settings are transferred separately from documents and run history. Use CLI backup/restore to transfer full history. JSON and backups are not encrypted.",
-        "Настройки переносятся отдельно от документов и run history. Полный перенос истории выполняется CLI backup/restore. JSON и backup не зашифрованы.",
+        "Настройки переносятся отдельно от документов и истории запусков. Для переноса всей истории используйте команды резервного копирования и восстановления. JSON и резервные копии не зашифрованы.",
       ),
       "notice",
     ),
@@ -50,7 +51,7 @@ async function renderSettings(content, isCurrent) {
     exportForm,
     t(
       "Include selected catalog versions with authored/source texts (without project evidence)",
-      "Включить выбранные версии каталогов с authored/source текстами (без project evidence)",
+      "Включить выбранные версии каталогов с авторскими текстами и цитатами (без документов проекта)",
     ),
     false,
     "checkbox",
@@ -59,7 +60,7 @@ async function renderSettings(content, isCurrent) {
     exportForm,
     t(
       "Sanitized sharing template: hide addresses/paths and reset prompt/skill texts",
-      "Sanitized sharing template: скрыть адреса/пути и сбросить prompt/skill тексты",
+      "Шаблон для передачи: скрыть адреса и пути, сбросить тексты промптов и навыков",
     ),
     false,
     "checkbox",
@@ -69,7 +70,7 @@ async function renderSettings(content, isCurrent) {
       "p",
       t(
         "Regular export preserves prompts and exact version references; endpoints, paths, and texts may reveal internal information. The sanitized option resets texts to defaults and requires a new review. Secret values, documents, and grants are excluded.",
-        "Обычный экспорт сохраняет промпты и точные version refs; endpoints, пути и тексты могут раскрывать внутреннюю информацию. Sanitized-вариант сбрасывает тексты к defaults и требует нового review. Secret values, документы и grants не включаются.",
+        "Обычный экспорт сохраняет промпты и ссылки на точные версии. Адреса, пути и тексты могут раскрывать внутреннюю информацию. Шаблон для передачи возвращает тексты к стандартным и требует повторной проверки. Секреты, документы и разрешения не включаются.",
       ),
       "notice",
     ),
@@ -77,7 +78,7 @@ async function renderSettings(content, isCurrent) {
   const preview = element("section", "", "panel stack");
   const submit = element(
     "button",
-    t("Prepare settings export preview", "Подготовить preview экспорта настроек"),
+    t("Prepare settings export preview", "Предпросмотр экспорта настроек"),
   );
   submit.type = "submit";
   exportForm.append(submit);
@@ -117,7 +118,7 @@ async function renderSettings(content, isCurrent) {
       downloadButton = action(
         t(
           "Accept displayed contents and download settings-bundle.json",
-          "Принять показанный состав и скачать settings-bundle.json",
+          "Подтвердить состав и скачать settings-bundle.json",
         ),
         async () => {
           const response = await fetch("/api/v1/settings/export", {
@@ -178,11 +179,11 @@ async function renderSettings(content, isCurrent) {
   input.required = true;
   const button = element(
     "button",
-    t("Validate settings bundle and remapping", "Проверить settings bundle и remapping"),
+    t("Validate settings bundle and remapping", "Проверить настройки и сопоставление объектов"),
   );
   button.type = "submit";
   const importPreview = element("section", "", "stack");
-  importForm.append(label, input, button, importPreview);
+  importForm.append(label, filePicker(input), button, importPreview);
   importForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     button.disabled = true;
@@ -244,7 +245,7 @@ async function renderSettings(content, isCurrent) {
   content.append(
     importForm,
     action(
-      t("Clear temporary settings previews", "Очистить временные settings previews"),
+      t("Clear temporary settings previews", "Очистить временные предпросмотры настроек"),
       async () => {
         await api("/settings/import/previews", { method: "DELETE" });
         setStatus(
@@ -259,7 +260,7 @@ async function renderSettings(content, isCurrent) {
   content.append(
     element(
       "h3",
-      t("Import results and unresolved mappings", "Результаты импорта и unresolved mappings"),
+      t("Import results and unresolved mappings", "Результаты импорта и нерешённые сопоставления"),
     ),
   );
   for (const item of receipts)
@@ -277,7 +278,7 @@ async function renderSettings(content, isCurrent) {
       "p",
       t(
         "Snapshots and results are retained until explicitly deleted by the user. Diagnostic/audit metadata: 14 days. Deletion is logical; secure SSD erasure and deletion of external backups are not guaranteed.",
-        "Snapshots и результаты хранятся до явного удаления пользователем. Diagnostic/audit metadata — 14 дней. Удаление логическое; secure erase SSD и удаление внешних backups не обещаются.",
+        "Снимки и результаты хранятся до удаления пользователем. Диагностические данные и журнал аудита хранятся 14 дней. Удаление логическое: физическое стирание SSD и удаление внешних резервных копий не гарантируются.",
       ),
     ),
     element(

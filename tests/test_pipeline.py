@@ -93,7 +93,7 @@ class FixtureAdapter(LLMAdapter):
         elif "facts" in properties:
             facts = []
             for record in data["requirements"]:
-                for side in ("baseline", "proposed"):
+                for side in data.get("assessment_sides", ("baseline", "proposed")):
                     block = data[side + "_blocks"][0]
                     for predicate in record["applicability"]["predicates"]:
                         review = data.get("assessment_phase") == ARCHITECTURAL_REVIEW_PHASE
@@ -142,7 +142,7 @@ class FixtureAdapter(LLMAdapter):
                         "requirement_ids": [r["id"] for r in data["requirements"]],
                         "evidence": [
                             {"block_id": b["id"], "quote": b["text"]}
-                            for b in data["baseline_blocks"][:2]
+                            for b in data["proposed_blocks" if data.get("review_mode") else "baseline_blocks"][:2]
                         ],
                         "explanation": "Equally authoritative sources disagree about the control, not private-document scope.",
                     }
@@ -183,6 +183,8 @@ class FixtureAdapter(LLMAdapter):
                         "question": None,
                     }
                 )
+                if self.mode == "review-bad-evidence":
+                    judgments[-1]["evidence"][0]["quote"] = "Invented source statement."
                 if self.mode in {"wide-clause-removal", "invented-removal-source"}:
                     if side == "baseline":
                         judgments[-1].update(evidence=[], evidence_state="insufficient")
@@ -336,6 +338,12 @@ class FixtureAdapter(LLMAdapter):
         for judgment in value.get("judgments", value.get("reassessment", [])):
             judgment["verdict"] = judgment.pop("assessment")
             judgment["support"] = judgment.pop("evidence_state")
+        if schema.get("title") == "builtin.P3.native.fact-pins.v1":
+            for fact in value.get("facts", []):
+                fact.pop("version")
+        if schema.get("title") == "builtin.P5.native.optional-design-summary.v1":
+            for judgment in value.get("judgments", []):
+                judgment.pop("applicable_design", None)
         type(self).calls.append(step)
         type(self).request_started.set()
         if type(self).pause is not None:
@@ -663,6 +671,289 @@ class PipelineTests(unittest.TestCase):
         store.close()
         self.request["connection"] = {"id": new["id"], "revision": 2}
         self.request["step_mode"] = True
+
+    def review_request(self):
+        documents = [self.request["delta_document_id"], *self.request["baseline_document_ids"]]
+        self.request = {key: value for key, value in self.request.items()
+                        if key not in {"delta_document_id", "baseline_document_ids", "context_document_ids"}}
+        self.request.update(mode="review_documents", review_document_ids=documents)
+        return documents
+
+    def test_review_documents_finishes_P6_without_changes(self):
+        documents = self.review_request()
+        store = Store(self.root / "app.sqlite3")
+        originals = {did: bytes(store.document(self.pid, did)[2]) for did in documents}
+        store.close()
+        self.request["step_mode"] = True
+        rid, _ = self.start("review-documents")
+        value = self.wait(rid)
+        for _ in range(25):
+            if value["status"] != "waiting_approval":
+                break
+            value = self.advance_step(rid, value)
+        self.assertEqual(value["status"], "succeeded", value)
+        self.assertEqual(FixtureAdapter.calls, ["P3", "P5"])
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}"
+        artifacts = self.client.get(prefix + "/artifacts").json()
+        report_ref = next(a for a in artifacts if a["kind"] == "stage.P6.output")
+        report = self.client.get(prefix + "/artifacts/" + report_ref["id"]).json()
+        self.assertEqual(report["assessment_scope"], "document")
+        self.assertTrue(report["matrix"])
+        self.assertNotIn("baseline", report["matrix"][0])
+        self.assertNotIn("change_effect", report["matrix"][0])
+        self.assertFalse(any(a["kind"] in {"stage.P7.output", "stage.P8.output"} for a in artifacts))
+        store = Store(self.root / "app.sqlite3")
+        manifest = json.loads(store.connection.execute("SELECT manifest FROM runs WHERE project_id=? AND id=?", (self.pid, rid)).fetchone()[0])
+        store.close()
+        self.assertEqual(set(manifest["connections"]), {"P3", "P5"})
+
+        # The public report and download work on actual pipeline output, without
+        # proposal generation, candidate reassessment or source mutation.
+        response = self.client.get(prefix + "/report")
+        self.assertEqual(response.status_code, 200, response.text)
+        public_report = response.json()
+        self.assertTrue(public_report["matrix"])
+        self.assertEqual(public_report["matrix"][0]["assessment"], report["matrix"][0]["document"])
+        self.assertNotIn("baseline", public_report["matrix"][0])
+        self.assertNotIn("change_effect", public_report["matrix"][0])
+        self.assertEqual(public_report["implementation_verification"], "not_verified")
+        self.assertFalse(public_report["review_decisions_supported"])
+        self.assertEqual(public_report["documents"], manifest["documents"])
+        self.assertEqual({doc["id"] for doc in public_report["documents"]}, set(documents))
+        from spec_enricher.snapshots import sha256
+        for document in public_report["documents"]:
+            self.assertEqual(document["sha256"], sha256(originals[document["id"]]))
+        self.assertEqual(public_report["catalogs"], manifest["catalogs"])
+        exported = self.client.post(
+            prefix + "/report/exports",
+            json={"expected_review_revision": public_report["review_revision"],
+                  "idempotency_key": "completed-review-report"},
+            headers=self.headers,
+        )
+        self.assertEqual(exported.status_code, 200, exported.text)
+        download = self.client.get(prefix + "/exports/" + exported.json()["id"])
+        self.assertEqual(download.status_code, 200, download.text if download.status_code != 200 else "")
+        self.assertIn("attachment", download.headers["content-disposition"])
+        with zipfile.ZipFile(io.BytesIO(download.content)) as archive:
+            self.assertEqual(set(archive.namelist()), {"review.json", "review.md", "run-manifest.json"})
+            self.assertEqual(json.loads(archive.read("review.json")), public_report)
+            exported_manifest = json.loads(archive.read("run-manifest.json"))
+            self.assertEqual(exported_manifest["documents"], manifest["documents"])
+            self.assertIn(b"implementation has not been verified", archive.read("review.md"))
+        store = Store(self.root / "app.sqlite3")
+        try:
+            self.assertEqual(originals, {did: bytes(store.document(self.pid, did)[2]) for did in documents})
+        finally:
+            store.close()
+        self.assertEqual(FixtureAdapter.calls, ["P3", "P5"])
+
+    def test_review_invalid_ids_and_evidence_fail_closed(self):
+        self.review_request()
+        for mode in ("invented", "review-bad-evidence"):
+            with self.subTest(mode=mode):
+                FixtureAdapter.mode = mode
+                rid, _ = self.start("review-invalid-" + mode)
+                result = self.wait(rid)
+                self.assertEqual(result["status"], "failed", result)
+                artifacts = self.client.get(f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts").json()
+                self.assertFalse(any(a["kind"] == "stage.P6.output" for a in artifacts))
+
+    def test_review_request_rejects_ambiguous_mode_inputs(self):
+        from spec_enricher.run_contracts import RunInput
+        self.review_request()
+        for extra in ({"review_document_ids": []}, {"delta_document_id": "other"},
+                      {"review_document_ids": ["same", "same"]},
+                      {"prompt_refs": {"P3": {"id": "custom", "revision": 1}}}):
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                RunInput.model_validate(self.request | extra)
+
+    def test_review_native_single_scope_and_source_unchanged(self):
+        self.use_prompt_json()
+        documents = self.review_request()
+        store = Store(self.root / "app.sqlite3")
+        originals = {did: bytes(store.document(self.pid, did)[2]) for did in documents}
+        registry = Registry(store)
+        old = registry.get(self.pid, "connection", self.request["connection"]["id"], 2)
+        profile = old["content"] | {"adapter": "lm_studio_native", "reasoning_effort": "none"}
+        new = registry.save(self.pid, "connection", profile, object_id=old["id"], expected_revision=2)
+        registry.report(self.pid, new["id"], 3, {"status": "degraded", "inference": "passed", "schema": "passed"})
+        registry.grant(self.pid, new["id"], 3, new["sha256"], profile["data_scopes"])
+        store.close()
+        self.request["connection"] = {"id": new["id"], "revision": 3}
+        rid, _ = self.start("native-review")
+        value = self.wait(rid)
+        for _ in range(20):
+            if value["status"] != "waiting_approval":
+                break
+            value = self.advance_step(rid, value)
+        self.assertEqual(value["status"], "succeeded", value)
+        self.assertEqual(FixtureAdapter.calls, ["P3", "P5"])
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts"
+        artifacts = self.client.get(prefix).json()
+        ref = next(a for a in artifacts if a["kind"] == "stage.P3.output")
+        facts = self.client.get(prefix + "/" + ref["id"]).json()["facts"]
+        self.assertTrue(facts)
+        self.assertTrue(all(f["side"] == "proposed" and f["version"] for f in facts))
+        store = Store(self.root / "app.sqlite3")
+        self.assertEqual(originals, {did: bytes(store.document(self.pid, did)[2]) for did in documents})
+        store.close()
+
+    def test_review_omitted_context_cannot_be_positive_pass(self):
+        self.review_request()
+        content = "\n\n".join(f"## Component {i}\nPrivate document permissions are checked. " + "document detail " * 70 for i in range(40))
+        doc = self.client.post(f"/api/v1/projects/{self.pid}/documents?filename=large-review.md",
+                               content=content.encode(), headers=self.headers)
+        self.assertEqual(doc.status_code, 201, doc.text)
+        self.request["review_document_ids"] = [doc.json()["id"]]
+        FixtureAdapter.mode = "overconfident-positive"
+        rid, _ = self.start("review-incomplete-context")
+        value = self.wait(rid)
+        self.assertEqual(value["status"], "partial", value)
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts"
+        ref = next(a for a in self.client.get(prefix).json() if a["kind"] == "stage.P6.output")
+        report = self.client.get(prefix + "/" + ref["id"]).json()
+        self.assertEqual(report["matrix"][0]["document"]["assessment"], "unknown")
+        self.assertEqual(report["matrix"][0]["document"]["reason"], "review_context_coverage_incomplete")
+
+    def test_review_empty_snapshot_rejected_before_run(self):
+        self.review_request()
+        store = Store(self.root / "app.sqlite3")
+        empty = store.add_document(self.pid, "empty.md", "baseline", b"   \n")
+        store.close()
+        self.request["review_document_ids"] = [empty]
+        response = self.client.post(f"/api/v1/projects/{self.pid}/runs/preflight", json=self.request, headers=self.headers)
+        self.assertEqual(response.status_code, 422, response.text)
+        self.assertIn("review_document_empty", response.text)
+        self.assertEqual(FixtureAdapter.calls, [])
+
+    def test_mode_defaults_preserve_legacy_request_checksum_only(self):
+        from spec_enricher.catalog import digest
+        from spec_enricher.run_contracts import RunInput, matches_request_checksum
+        legacy = RunInput.model_validate(self.request).model_dump()
+        legacy.pop("mode")
+        legacy.pop("review_document_ids")
+        current = RunInput.model_validate(legacy).model_dump()
+        self.assertTrue(matches_request_checksum(digest(legacy), current))
+        self.assertFalse(matches_request_checksum(digest(legacy), current | {"mode": "review_documents"}))
+        self.assertFalse(matches_request_checksum(digest(legacy), current | {"delta_document_id": "changed"}))
+
+    def test_review_conflict_remains_unknown_not_excluded(self):
+        self.review_request()
+        FixtureAdapter.mode = "source-conflict"
+        rid, _ = self.start("review-source-conflict")
+        result = self.wait(rid)
+        self.assertEqual(result["status"], "partial", result)
+        report = self.client.get(f"/api/v1/projects/{self.pid}/runs/{rid}/report").json()
+        row = report["matrix"][0]["assessment"]
+        self.assertEqual(row["assessment"], "unknown")
+        self.assertEqual(row["reason"], "source_conflict")
+        self.assertTrue(report["incomplete"])
+
+    def test_review_model_exclusion_held_and_explicit_override_respected(self):
+        self.review_request()
+        FixtureAdapter.mode = "scope-absence"
+        for answer in (None, False, True):
+            with self.subTest(explicit_answer=answer):
+                self.request["fact_overrides"] = [] if answer is None else [{
+                    "requirement_id": "USER-DEMO-DOCUMENT-AUTHZ", "predicate_id": "private-read",
+                    "side": "proposed", "value": answer, "reason": "Explicit synthetic scope decision."}]
+                rid, _ = self.start("review-exclusion-" + str(answer))
+                value = self.wait(rid)
+                prefix = f"/api/v1/projects/{self.pid}/runs/{rid}"
+                report_response = self.client.get(prefix + "/report")
+                self.assertEqual(report_response.status_code, 200, report_response.text)
+                report = report_response.json()
+                row = report["matrix"][0]["assessment"]
+                if answer is None:
+                    self.assertEqual(value["status"], "partial")
+                    self.assertEqual(row["assessment"], "unknown")
+                    self.assertEqual(row["reason"], "review_scope_exclusion_requires_confirmation")
+                    self.assertTrue(report["findings"])
+                    fact = report["scope_confirmations"][0]["facts"][0]
+                    self.assertIs(fact["value"], False)
+                    self.assertTrue(fact["evidence"])
+                else:
+                    self.assertEqual(value["status"], "succeeded", value)
+                    self.assertEqual(report["scope_confirmations"], [])
+                    self.assertEqual(row["applicability"], "applicable" if answer else "not_applicable")
+
+    def test_review_unknown_is_report_not_model_error(self):
+        self.review_request()
+        FixtureAdapter.mode = "unknown"
+        rid, _ = self.start("review-unknown")
+        value = self.wait(rid)
+        self.assertEqual(value["status"], "partial", value)
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts"
+        artifacts = self.client.get(prefix).json()
+        ref = next(a for a in artifacts if a["kind"] == "stage.P6.output")
+        report = self.client.get(prefix + "/" + ref["id"]).json()
+        self.assertEqual(report["matrix"][0]["document"]["assessment"], "unknown")
+        self.assertTrue(report["questions"])
+        self.assertEqual(FixtureAdapter.calls, ["P3"])
+
+    def test_native_p3_wire_hydrates_metadata_and_preserves_raw(self):
+        self.use_prompt_json()
+        store = Store(self.root / "app.sqlite3")
+        registry = Registry(store)
+        old = registry.get(self.pid, "connection", self.request["connection"]["id"], 2)
+        profile = old["content"] | {"adapter": "lm_studio_native", "reasoning_effort": "none"}
+        new = registry.save(self.pid, "connection", profile, object_id=old["id"], expected_revision=2)
+        registry.report(self.pid, new["id"], 3, {"status": "degraded", "inference": "passed", "schema": "passed"})
+        registry.grant(self.pid, new["id"], 3, new["sha256"], profile["data_scopes"])
+        store.close()
+        self.request["connection"] = {"id": new["id"], "revision": 3}
+        rid, _ = self.start("native-p3-pins")
+        value = self.wait(rid)
+        for _ in range(30):
+            if value["status"] != "waiting_approval":
+                break
+            value = self.advance_step(rid, value)
+        self.assertEqual(value["status"], "succeeded", value)
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts"
+        artifacts = self.client.get(prefix).json()
+        outputs = [a for a in artifacts if a["kind"] == "model.output" and a["metadata"].get("wire_contract") == "builtin.P3.native.fact-pins.v1"]
+        self.assertEqual(len(outputs), 1)
+        self.assertEqual(outputs[0]["metadata"]["metadata_hydration"], "version_from_unique_pinned_requirement_predicate_side")
+        output = self.client.get(prefix + "/" + outputs[0]["id"]).json()
+        self.assertTrue(all(f["version"] for f in output["facts"]))
+        raws = [a for a in artifacts if a["kind"] == "model.raw" and a["metadata"]["stage"] == "P3"]
+        raw = self.client.get(prefix + "/" + raws[0]["id"]).json()
+        wire = json.loads(raw["choices"][0]["message"]["content"])
+        self.assertTrue(all("version" not in f for f in wire["facts"]))
+        p5_outputs = [a for a in artifacts if a["kind"] == "model.output"
+                      and a["metadata"].get("wire_contract") == "builtin.P5.native.optional-design-summary.v1"]
+        self.assertTrue(p5_outputs)
+        for item in p5_outputs:
+            result = self.client.get(prefix + "/" + item["id"]).json()
+            self.assertTrue(all(j["applicable_design"] is None for j in result["judgments"]))
+            self.assertEqual(item["metadata"]["missing_presentation_handling"], "absent_to_null_without_inference")
+
+
+    def test_native_invalid_output_stops_without_structural_repair(self):
+        self.use_prompt_json()
+        store = Store(self.root / "app.sqlite3")
+        registry = Registry(store)
+        old = registry.get(self.pid, "connection", self.request["connection"]["id"], 2)
+        profile = old["content"] | {"adapter": "lm_studio_native", "reasoning_effort": "none"}
+        new = registry.save(self.pid, "connection", profile, object_id=old["id"], expected_revision=2)
+        registry.report(self.pid, new["id"], 3, {"status": "degraded", "inference": "passed", "schema": "passed"})
+        registry.grant(self.pid, new["id"], 3, new["sha256"], profile["data_scopes"])
+        store.close()
+        self.request["connection"] = {"id": new["id"], "revision": 3}
+        FixtureAdapter.mode = "empty-operations"
+        rid, _ = self.start("native-no-repair")
+        value = self.wait(rid)
+        for _ in range(8):
+            if value["status"] != "waiting_approval":
+                break
+            value = self.advance_step(rid, value)
+        self.assertEqual(value["status"], "failed")
+        self.assertEqual(FixtureAdapter.calls, ["P2"])
+        prefix = f"/api/v1/projects/{self.pid}/runs/{rid}/artifacts"
+        rejections = [a for a in self.client.get(prefix).json() if a["kind"] == "model.rejection"]
+        self.assertEqual(len(rejections), 1)
+        rejection = self.client.get(prefix + "/" + rejections[0]["id"]).json()
+        self.assertFalse(rejection["repair_permitted"])
 
     def test_prompt_json_step_mode_sends_exact_approved_payload_once(self):
         self.use_prompt_json()

@@ -28,6 +28,7 @@ from .pipeline import PipelineRunner
 from .pipeline_config import rendered
 from .preflight import current_algorithm_hashes, prepare
 from .retrieval import ContextIndex
+from .review_reporting import ReportExportInput, export_report, review_report
 from .run_contracts import RunInput
 from .runs import RunConflict, RunRepository
 from .security import error
@@ -135,6 +136,9 @@ def install(app, db, project_exists, data_dir, secrets, adapter_factory=None):
 
     def first_payload(manifest, store):
         request = RunInput.model_validate(manifest["request"])
+        if request.mode == "review_documents":
+            # Exact payload is prepared after deterministic snapshots at P3.
+            return None
         delta = blocks(
             request.delta_document_id,
             store.document(manifest["project_id"], request.delta_document_id)[2],
@@ -239,7 +243,8 @@ def install(app, db, project_exists, data_dir, secrets, adapter_factory=None):
             (project_id, body.idempotency_key),
         ).fetchone()
         if existing:
-            if existing[1] != digest(body.request.model_dump()):
+            from .run_contracts import matches_request_checksum
+            if not matches_request_checksum(existing[1], body.request.model_dump()):
                 return error(
                     409,
                     "idempotency_conflict",
@@ -673,6 +678,31 @@ def install(app, db, project_exists, data_dir, secrets, adapter_factory=None):
             )
         store.audit(project_id, "review_decision", body.target_id)
         return {"review_revision": revision, "assessment_unchanged": True}
+
+    @app.get("/api/v1/projects/{project_id}/runs/{run_id}/report")
+    def document_report(project_id: str, run_id: str, store: Store = Depends(db)):
+        repo, _ = checked(project_id, run_id, store)
+        try:
+            report = review_report(repo, project_id, run_id)
+            secrets.reject_known(canonical(report))
+            return report
+        except RunConflict as exc:
+            return error(409, "report_unavailable", "Document report is not ready for this run.",
+                         [{"reason": str(exc)}])
+
+    @app.post("/api/v1/projects/{project_id}/runs/{run_id}/report/exports")
+    def document_report_export(
+        project_id: str, run_id: str, body: ReportExportInput, store: Store = Depends(db)
+    ):
+        repo, _ = checked(project_id, run_id, store)
+        try:
+            configured_root = os.environ.get("APP_EXPORT_DIR")
+            destination = Path(configured_root) if configured_root else data_dir / "exports"
+            return export_report(repo, project_id, run_id, body, destination,
+                                 validate_content=secrets.reject_known)
+        except RunConflict as exc:
+            return error(409, "report_export_conflict", "Report or review revision changed; refresh the report.",
+                         [{"reason": str(exc)}])
 
     @app.post("/api/v1/projects/{project_id}/runs/{run_id}/proposal/preview")
     def preview(

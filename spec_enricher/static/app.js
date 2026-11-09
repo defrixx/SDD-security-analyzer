@@ -1,5 +1,6 @@
 import { t, getLanguage, initializeLanguage } from "./i18n.js";
 initializeLanguage();
+import { combineSpecification } from "./files.js";
 import { renderConnections, connectionSelect } from "./connections.js";
 import { renderConfiguration } from "./configuration.js";
 import { selectedRuns, closeRunEvents, renderNewRun, renderHistory, renderRun } from "./runs.js";
@@ -25,11 +26,20 @@ function $(selector) {
   return /** @type {UIElements[K]} */ (value);
 }
 let csrf = "";
-let projectId = "";
+const readNavigation = (key, fallback) => {
+  try { return sessionStorage.getItem(key) || fallback; } catch { return fallback; }
+};
+let projectId = readNavigation("sdd-project", "");
 let projects = [];
 let projectListGeneration = 0;
-let view = "overview";
+let view = readNavigation("sdd-view", "overview");
+if (!["overview", "documents", "catalogs", "sources", "connections", "configuration", "analysis", "history", "settings", "preferences"].includes(view)) view = "overview";
+const settingsViews = new Set(["preferences", "connections", "sources", "configuration", "settings"]);
+const analysisViews = new Set(["analysis", "history", "run"]);
+const primaryView = (value) => settingsViews.has(value) ? "preferences" : analysisViews.has(value) ? "analysis" : value;
+const saveNavigation = (key, value) => { try { sessionStorage.setItem(key, value); } catch { /* Optional navigation memory. */ } };
 let renderGeneration = 0;
+let lastRenderContext = "";
 /** @type {HTMLButtonElement | null} */
 let dialogReturnFocus = null;
 function setProject(value) {
@@ -60,6 +70,30 @@ function element(tag, text = "", className = "") {
   if (tag === "pre") result.tabIndex = 0;
   if (className) result.className = className;
   return result;
+}
+/** Localized page control; the OS file dialog retains the system language. */
+function filePicker(input) {
+  const box = element("div", "", "file-picker");
+  const trigger = element("span", t("Choose files…", "Выбрать файлы…"), "file-picker-trigger");
+  trigger.setAttribute("aria-hidden", "true");
+  const selected = element("span", "", "file-picker-selection");
+  selected.id = `${input.id}-selection`;
+  selected.setAttribute("aria-live", "polite");
+  input.setAttribute("aria-describedby", selected.id);
+  input.setAttribute("aria-label", t("Choose files", "Выбрать файлы"));
+  const update = () => {
+    selected.textContent = Array.from(input.files || []).map((file) => file.name).join(", ") ||
+      t("No files selected", "Файлы не выбраны");
+  };
+  input.addEventListener("change", update);
+  update();
+  box.append(trigger, input, selected);
+  return box;
+}
+function disclosure(title, ...children) {
+  const box = element("details", "", "panel disclosure");
+  box.append(element("summary", title), ...children);
+  return box;
 }
 function setStatus(text) {
   $("#status").textContent = text;
@@ -101,7 +135,7 @@ function post(path, value = {}, method = "POST") {
     body: JSON.stringify(value),
   });
 }
-function action(text, callback) {
+function action(text, callback, { disabledWhen = () => false } = {}) {
   const button = element("button", text);
   button.type = "button";
   button.addEventListener("click", async () => {
@@ -112,7 +146,7 @@ function action(text, callback) {
     } catch (error) {
       showError(error);
     } finally {
-      button.disabled = false;
+      button.disabled = Boolean(disabledWhen());
     }
   });
   return button;
@@ -154,25 +188,83 @@ async function refreshProjects() {
   if (!projects.some((project) => project.id === projectId)) projectId = "";
   select.value = projectId;
 }
+async function renderSettingsHub(pid, content, isCurrent) {
+  content.append(element("h2", t("Settings", "Настройки")), element("p", t("Configure models and optional sources here. The main workflow remains documentation, requirements, and analysis.", "Здесь настраиваются модели и дополнительные источники. Основной путь: документация, требования и анализ.")));
+  const selected = view === "preferences" ? readNavigation("sdd-settings-group", "") : view;
+  const groups = [
+    ["connections", t("Model connections", "Подключения моделей"), t("Choose the model and review its data access.", "Выбор модели и её доступа к данным."), renderConnections],
+    ["sources", t("External sources: import and snapshots", "Внешние источники: импорт и снимки"), t("Optional source imports are separate from uploaded specification files. No automatic model scanning.", "Дополнительный импорт источников отделён от загруженных файлов спецификации. Модель ничего не сканирует автоматически."), renderSources],
+    ["configuration", t("Skills and advanced analysis settings", "Навыки и дополнительные настройки анализа"), t("Custom prompts, skills, and comparison pipelines.", "Собственные промпты, навыки и сценарии сравнения."), renderConfiguration],
+    ["settings", t("System settings and data", "Системные настройки и данные"), t("Settings transfer, backups, and data maintenance.", "Перенос настроек, резервные копии и обслуживание данных."), null],
+  ];
+  for (const [key, title, description, renderer] of groups) {
+    if (!isCurrent()) return;
+    const group = disclosure(title);
+    group.classList.add("settings-group");
+    const body = element("section", "", "stack");
+    group.append(element("p", description, "muted"), body);
+    let loaded = false;
+    const load = async () => {
+      if (!isCurrent() || loaded || !group.open) return;
+      if (key !== "settings" && !pid) {
+        body.append(element("p", t("Select or create a product above to configure this section.", "Выберите или создайте продукт вверху страницы для настройки этого раздела."), "notice")); loaded = true; return;
+      }
+      loaded = true; body.setAttribute("aria-busy", "true");
+      body.append(element("p", t("Loading…", "Загрузка…")));
+      const target = element("div", "", "stack");
+      try {
+        if (key === "settings") await renderSettings(target, isCurrent);
+        else await renderer(pid, target, isCurrent);
+        if (isCurrent()) body.replaceChildren(target);
+      } catch (error) {
+        if (isCurrent()) { loaded = false; body.replaceChildren(element("p", errorMessage(error), "notice"), action(t("Retry", "Повторить"), load)); }
+      } finally { if (isCurrent()) body.removeAttribute("aria-busy"); }
+    };
+    group.addEventListener("toggle", () => {
+      if (!isCurrent()) return;
+      if (group.open) { view = "preferences"; saveNavigation("sdd-settings-group", key); void load(); }
+      else if (readNavigation("sdd-settings-group", "") === key) saveNavigation("sdd-settings-group", "");
+    });
+    content.append(group);
+    if (key === selected) { group.open = true; await load(); if (!isCurrent()) return; }
+  }
+}
+function analysisNavigation(content) {
+  const navigation = element("div", "", "analysis-navigation");
+  navigation.setAttribute("role", "navigation"); navigation.setAttribute("aria-label", t("Analysis pages", "Страницы анализа"));
+  for (const [key, label] of [["analysis", t("New review", "Новая проверка")], ["history", t("History and results", "История и результаты")]]) {
+    const button = action(label, () => { setView(key); return render(); });
+    if (view === key || (view === "run" && key === "history")) button.setAttribute("aria-current", "page");
+    navigation.append(button);
+  }
+  content.append(navigation);
+}
 async function render() {
   closeRunEvents();
   const generation = ++renderGeneration;
   const pid = projectId;
   const content = $("#content");
+  try {
+    sessionStorage.setItem("sdd-project", projectId);
+    sessionStorage.setItem("sdd-view", settingsViews.has(view) ? "preferences" : view === "run" ? "history" : view);
+  } catch { /* Browsing still works when storage is unavailable. */ }
   content.replaceChildren();
+  const navigationContext = `${pid}|${settingsViews.has(view) ? "preferences" : view}`;
+  if (lastRenderContext && lastRenderContext !== navigationContext) {
+    $("#main").focus({ preventScroll: true });
+    $("#main").scrollIntoView({ block: "start", behavior: "instant" });
+  }
+  lastRenderContext = navigationContext;
   document.querySelectorAll("button").forEach((button) => {
-    if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+    if ((button.dataset.primary && button.dataset.primary === primaryView(view)) || (!button.dataset.primary && button.dataset.view === view)) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   });
   const current = projects.find((project) => project.id === pid);
-  if (view === "settings") {
+  if (settingsViews.has(view)) {
     setStatus(t("Loading…", "Загрузка…"));
-    try {
-      await renderSettings(content, () => generation === renderGeneration);
-      if (generation === renderGeneration) setStatus(t("Ready", "Готово"));
-    } catch (error) {
-      if (generation === renderGeneration) showError(error);
-    }
+    const isCurrent = () => generation === renderGeneration && pid === projectId;
+    await renderSettingsHub(pid, content, isCurrent);
+    if (isCurrent()) setStatus(t("Ready", "Готово"));
     return;
   }
   if (!current) {
@@ -189,6 +281,10 @@ async function render() {
     );
     return;
   }
+  if (analysisViews.has(view)) {
+    saveNavigation("sdd-analysis-view", view === "analysis" ? "analysis" : "history");
+    analysisNavigation(content);
+  }
   setStatus(t("Loading…", "Загрузка…"));
   try {
     if (view === "overview") {
@@ -202,24 +298,26 @@ async function render() {
       );
       const panel = element("section", "", "panel");
       panel.append(
-        element("h3", t("Prepare a security review", "Подготовка security review")),
+        element("h3", t("Check your specification in four steps", "Проверка спецификации за четыре шага")),
         element(
           "p",
           t(
-            "Upload current product documentation, add a requirements catalog, and prepare a Markdown delta.",
-            "Загрузите текущую документацию продукта, добавьте каталог требований и подготовьте delta в Markdown.",
+            "No existing documentation is needed. Upload proposal, design, or specification files together, add the playbook, then select a model and review the findings.",
+            "Готовая документация не обязательна. Загрузите вместе предложение, дизайн или спецификацию, добавьте плейбук, затем выберите модель и изучите результаты.",
           ),
         ),
       );
       panel.append(
-        action(t("Upload documentation", "Загрузить документацию"), () => {
+        action(t("1. Add specification files", "1. Добавить файлы спецификации"), () => {
           view = "documents";
           return render();
         }),
-        action(t("Add requirements", "Добавить требования"), () => {
+        action(t("2. Add requirements", "2. Добавить требования"), () => {
           view = "catalogs";
           return render();
         }),
+        action(t("3. Set up a model", "3. Настроить модель"), () => { view = "connections"; return render(); }),
+        action(t("4. Check specification", "4. Проверить спецификацию"), () => { view = "analysis"; return render(); }),
       );
       content.append(
         panel,
@@ -233,24 +331,29 @@ async function render() {
         ),
       );
     } else if (view === "documents") {
-      content.append(element("h2", t("Product documentation", "Документация продукта")));
+      content.append(element("h2", t("Specification files", "Файлы спецификации")), element("p", t("Select several Markdown files at once: proposal, design, specs, or tasks. They are saved separately and checked together. No existing baseline is needed.", "Выберите сразу несколько Markdown-файлов: proposal, design, specs или tasks. Они сохраняются отдельно и проверяются вместе. Исходная документация не нужна.")));
+      const sourceHelp = disclosure(t("Need to import from an external source?", "Нужен импорт из внешнего источника?"), element("p", t("Uploaded files are the documents selected for checking. External sources create separate imported snapshots; adding a source does not automatically include it in a review or grant the model access.", "Загруженные файлы — это документы, выбираемые для проверки. Внешние источники создают отдельные импортированные снимки: добавление источника не включает его в проверку автоматически и не предоставляет модели доступ.")), action(t("Configure source imports and snapshots", "Настроить импорт источников и снимки"), () => { setView("sources"); return render(); }));
+      content.append(sourceHelp);
       const form = element("form", "", "stack panel");
       const role = element("select");
       role.id = "upload-role";
       [
-        ["master_spec", t("Current state / baseline", "Текущее состояние / baseline")],
+        ["master_spec", t("Specification documents to review", "Документы спецификации для проверки")],
         ["context", t("Context material", "Контекстный материал")],
-        ["delta", t("Delta — product change", "Delta — изменение продукта")],
+        ["delta", t("Advanced: change to compare (Markdown)", "Дополнительно: изменение для сравнения (Markdown)")],
       ].forEach(([value, text]) => {
         role.add(new Option(text, value));
       });
+      role.value = "master_spec";
       const label = element("label", t("File purpose", "Назначение файлов"));
       label.htmlFor = role.id;
       const input = element("input");
       input.id = "document-files";
       input.type = "file";
       input.multiple = true;
-      input.accept = ".md,.json,.yaml,.yml";
+      const updateAccept = () => { input.accept = role.value === "delta" ? ".md" : ".md,.json,.yaml,.yml"; };
+      updateAccept();
+      role.addEventListener("change", updateAccept);
       input.required = true;
       const fileLabel = element("label", t("Choose documents", "Выбрать документы"));
       fileLabel.htmlFor = input.id;
@@ -262,12 +365,12 @@ async function render() {
         label,
         role,
         fileLabel,
-        input,
+        filePicker(input),
         element(
           "p",
           t(
-            "Up to 20 files, 1 MiB each; delta: Markdown up to 100 KiB. Product corpus: up to 10 MiB.",
-            "До 20 файлов, до 1 MiB каждый; delta — Markdown до 100 KiB. Корпус продукта — до 10 MiB.",
+            "Up to 20 files, 1 MiB each; product corpus: 10 MiB. Files remain separate. Only the advanced change-comparison role combines Markdown files (100 KiB total).",
+            "До 20 файлов, до 1 MiB каждый; корпус продукта: до 10 MiB. Файлы сохраняются отдельно. Только дополнительный режим сравнения изменений объединяет Markdown-файлы (до 100 KiB всего).",
           ),
           "muted",
         ),
@@ -276,8 +379,12 @@ async function render() {
       );
       form.addEventListener("submit", async (event) => {
         event.preventDefault();
+        if (submit.disabled) return;
         submit.disabled = true;
-        const selected = Array.from(input.files || []);
+        const uploadRole = role.value;
+        input.disabled = true; role.disabled = true;
+        const unlockUpload = () => { submit.disabled = false; input.disabled = false; role.disabled = false; };
+        let selected = Array.from(input.files || []);
         results.replaceChildren();
         if (selected.length > 20) {
           results.append(
@@ -287,19 +394,30 @@ async function render() {
               "error",
             ),
           );
-          submit.disabled = false;
+          unlockUpload();
           return;
         }
+        if (uploadRole === "delta" && selected.length > 1) {
+          try {
+            selected = [await combineSpecification(selected)];
+          } catch (error) {
+            results.append(element("p", errorMessage(error), "error"));
+            unlockUpload();
+            return;
+          }
+        }
+        let uploaded = 0;
         for (const file of selected) {
           try {
             const result = await api(
-              `/projects/${pid}/documents?filename=${encodeURIComponent(file.name)}&role=${role.value}`,
+              `/projects/${pid}/documents?filename=${encodeURIComponent(file.name)}&role=${uploadRole}`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/octet-stream" },
                 body: file,
               },
             );
+            uploaded += 1;
             results.append(
               element(
                 "p",
@@ -316,11 +434,15 @@ async function render() {
             );
           }
         }
-        submit.disabled = false;
+        if (uploaded === selected.length) {
+          input.value = "";
+          input.dispatchEvent(new Event("change"));
+        }
+        unlockUpload();
         if (projectId === pid) await renderDocumentList(pid, list);
       });
       const list = element("section");
-      content.append(form, list);
+      content.append(form, action(t("Continue: add requirements", "Далее: добавить требования"), () => { view = "catalogs"; return render(); }), list);
       await renderDocumentList(pid, list);
     } else if (view === "analysis") {
       await renderNewRun(pid, content, () => generation === renderGeneration);
@@ -338,14 +460,17 @@ async function render() {
       content.append(
         element("h2", t("Cybersecurity requirements", "Требования кибербезопасности")),
       );
-      await authoringPanel(pid, content, () => generation === renderGeneration);
+      content.append(element("p", t("Start with all built-in requirements, or add your own. Specification and proposal files belong in Documentation.", "Начните со всех встроенных требований или добавьте свои. Файлы спецификаций и предложений загружайте в Документацию.")));
+      const custom = element("section");
+      await authoringPanel(pid, custom, () => generation === renderGeneration);
       if (generation !== renderGeneration) return;
+      const catalogs = await api(`/projects/${pid}/catalogs`);
       const builtin = await api("/builtin-catalog");
       const visibility = await api("/builtin/visibility");
       if (generation !== renderGeneration) return;
       const panel = element("section", "", "panel");
       panel.append(
-        element("h3", builtin.title),
+        element("h3", t("Use the built-in playbook", "Использовать встроенный плейбук")),
         element(
           "p",
           t(
@@ -353,14 +478,14 @@ async function render() {
             `${builtin.records} записей / ${builtin.active_records} активных. Версия ${builtin.catalog_version}.`,
           ),
         ),
-        element("p", builtin.review_scope, "notice"),
+        element("p", t("Targeted source review; not a guarantee of complete coverage or accuracy.", "Выборочная проверка источников не гарантирует полного покрытия и безошибочности."), "notice"), element("p", t("Catalog records and quotations retain their original source language.", "Записи каталога и цитаты сохраняют исходный язык источника."), "muted"),
       );
       panel.append(
         action(t("Provenance and limitations", "Происхождение и ограничения"), () =>
           details(t("Built-in bundle", "Встроенный набор"), builtin),
         ),
         action(
-          t("Accept and enable the built-in bundle", "Принять и включить встроенный набор"),
+          t("Add all built-in requirements", "Добавить все встроенные требования"),
           async () => {
             await post(`/projects/${pid}/builtin-catalog`, {
               confirmed: true,
@@ -370,8 +495,18 @@ async function render() {
           },
         ),
       );
+      const enableButton = panel.querySelectorAll("button")[1];
+      enableButton.classList.add("primary");
+      panel.insertBefore(enableButton, panel.querySelector("button"));
+      const alreadyAdded = catalogs.some((catalog) => catalog.catalog_id === builtin.catalog_id && catalog.version === builtin.catalog_version && catalog.enabled);
+      if (alreadyAdded) {
+        enableButton.textContent = t("Built-in requirements added", "Встроенные требования добавлены");
+        enableButton.disabled = true;
+      }
       if (!visibility.hidden) content.append(panel);
-      await domainPanel(pid, panel, () => generation === renderGeneration);
+      const domains = disclosure(t("Choose individual domains instead", "Выбрать отдельные области вместо всего набора"));
+      panel.append(domains);
+      await domainPanel(pid, domains, () => generation === renderGeneration);
       if (generation !== renderGeneration) return;
       const importForm = element("form", "", "stack panel");
       const label = element(
@@ -390,7 +525,7 @@ async function render() {
       );
       submit.type = "submit";
       const preview = element("div");
-      importForm.append(label, input, submit, preview);
+      importForm.append(label, filePicker(input), element("p", t("Use a structured JSON/YAML catalog, not a specification document. Download a template below if needed.", "Здесь нужен структурированный каталог JSON/YAML, а не спецификация. При необходимости скачайте шаблон ниже.")), submit, preview);
       importForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         submit.disabled = true;
@@ -433,9 +568,12 @@ async function render() {
           submit.disabled = false;
         }
       });
-      content.append(importForm);
-      const catalogs = await api(`/projects/${pid}/catalogs`);
+      content.append(disclosure(t("Import requirements from JSON / YAML", "Импорт требований из JSON / YAML"), importForm),
+        disclosure(t("Write a requirement, resume drafts, or manage shared catalogs", "Создать требование, продолжить черновик или открыть общие каталоги"), custom));
+      content.append(action(t("Continue: check specification", "Далее: проверить спецификацию"), () => { view = "analysis"; return render(); }));
+      content.append(element("h3", t("Added catalogs", "Добавленные каталоги")));
       if (generation !== renderGeneration) return;
+      if (!catalogs.length) content.append(element("p", t("No catalogs added yet. Use the button above to add the built-in requirements.", "Каталогов пока нет. Нажмите кнопку выше, чтобы добавить встроенные требования."), "empty"));
       for (const catalog of catalogs) {
         const section = element("section", "", "panel");
         section.append(
@@ -499,6 +637,11 @@ async function render() {
             () => purgeDialog(pid, "catalog", catalog.id),
           ),
         );
+        const maintenance = disclosure(t("Catalog versions, export, and removal", "Версии каталога, экспорт и удаление"));
+        for (const child of Array.from(section.children)) {
+          if (child instanceof HTMLButtonElement || child instanceof HTMLAnchorElement) maintenance.append(child);
+        }
+        section.append(action(t("Browse requirements", "Просмотр требований"), () => requirementPage(pid, catalog.id, 0)), maintenance);
         content.append(section);
       }
     }
@@ -528,7 +671,7 @@ async function renderDocumentList(pid, target) {
         if (projectId === pid) details(doc.name, text);
       }),
       action(
-        t("Permanently delete this snapshot · preview", "Полная очистка этого snapshot · preview"),
+        t("Permanently delete this snapshot · preview", "Предпросмотр удаления снимка"),
         () => purgeDialog(pid, "document", doc.id),
       ),
     );
@@ -675,6 +818,19 @@ async function requirementPage(
   panel.append(actions);
   if (!$("#details").open) $("#details").showModal();
 }
+// In-flow footer link: only on long, scrolled pages, never over a dialog or controls.
+const backToTop = document.getElementById("back-to-top");
+const updateBackToTop = () => {
+  backToTop.hidden = Boolean(document.querySelector("dialog[open]")) || document.documentElement.scrollHeight <= innerHeight * 4 || scrollY < innerHeight;
+};
+backToTop.addEventListener("click", (event) => {
+  event.preventDefault(); $("#main").focus({ preventScroll: true });
+  $("#main").scrollIntoView({ block: "start", behavior: "instant" });
+});
+addEventListener("scroll", updateBackToTop, { passive: true });
+addEventListener("resize", updateBackToTop);
+new ResizeObserver(updateBackToTop).observe($("#content"));
+for (const dialog of document.querySelectorAll("dialog")) new MutationObserver(updateBackToTop).observe(dialog, { attributes: true, attributeFilter: ["open"] });
 $("#new-project").addEventListener("click", () => $("#project-dialog").showModal());
 $("#project-cancel").addEventListener("click", () => $("#project-dialog").close());
 $("#details-close").addEventListener("click", () => $("#details").close());
@@ -689,7 +845,7 @@ $("#project").addEventListener("change", async () => {
 document.querySelectorAll("button").forEach((button) => {
   if (button.dataset.view)
     button.addEventListener("click", () => {
-      view = button.dataset.view || "overview";
+      view = button.dataset.primary === "analysis" ? (readNavigation("sdd-analysis-view", "analysis") === "history" ? "history" : "analysis") : button.dataset.view || "overview";
       render();
     });
 });
@@ -742,6 +898,8 @@ $("#login-form").addEventListener("submit", async (event) => {
 
 export {
   errorMessage,
+  filePicker,
+  disclosure,
   $,
   csrf,
   projectId,

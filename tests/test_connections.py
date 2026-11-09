@@ -825,3 +825,154 @@ class ConnectionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NativeLMStudioTests(unittest.TestCase):
+    schema = {"type": "object", "properties": {"ok": {"const": True}}, "required": ["ok"], "additionalProperties": False}
+    messages = [{"role": "system", "content": "Synthetic only."}, {"role": "user", "content": 'Return {"ok":true}.'}]
+
+    def adapter(self, **changes):
+        data = dict(name="Native synthetic", adapter="lm_studio_native", endpoint="http://127.0.0.1:1234/api/v1", local_addresses=["127.0.0.1"], model="synthetic", output_mode="prompt_json", reasoning_effort="none", max_output_tokens=128)
+        return LLMAdapter("A", ConnectionProfile(**(data | changes)), SecretStore())
+
+    def complete(self, raw, **changes):
+        from types import SimpleNamespace
+        adapter = self.adapter(**changes)
+        body = json.dumps(raw).encode()
+        with patch.object(adapter.transport, "request", return_value=SimpleNamespace(body=body, latency_ms=1)) as request:
+            received = []
+            result = adapter.complete(self.messages, self.schema, after_response=lambda raw, _: received.append(raw))
+            self.assertEqual(request.call_args.args, ("POST", "/chat"))
+            self.assertEqual(received, [body])
+            return result
+
+    def good(self, content='{"ok":true}'):
+        return {"output": [{"type": "message", "content": content}], "stats": {"input_tokens": 10, "total_output_tokens": 6, "reasoning_output_tokens": 0}}
+
+    def test_payload_is_explicit_stateless_tool_free_and_schema_prompted(self):
+        payload = self.adapter().payload(self.messages, self.schema)
+        self.assertEqual(payload["reasoning"], "off")
+        self.assertIs(payload["store"], False)
+        self.assertEqual(payload["integrations"], [])
+        self.assertNotIn("response_format", payload)
+        self.assertNotIn("previous_response_id", payload)
+        self.assertNotIn("tools", payload)
+        self.assertEqual(payload["input"], self.messages[1]["content"])
+        self.assertIn('"additionalProperties":false', payload["system_prompt"])
+        with self.assertRaisesRegex(ModelError, "unsupported_native_message_layout"):
+            self.adapter().payload(self.messages + [{"role": "assistant", "content": "bad"}, {"role": "user", "content": "repair"}], self.schema)
+        for role in ("system", "tool", "assistant"):
+            with self.assertRaisesRegex(ModelError, "unsupported_native_message_layout"):
+                self.adapter().payload([self.messages[0], {"role": role, "content": "untrusted"}], self.schema)
+
+
+    def test_original_native_envelope_usage_and_local_validation(self):
+        raw = self.good()
+        result = self.complete(raw)
+        self.assertEqual(result.value, {"ok": True})
+        self.assertEqual(result.raw, raw)
+        self.assertEqual(result.usage, {"prompt_tokens": 10, "completion_tokens": 6, "total_tokens": 16})
+        with self.assertRaises(OutputSchemaError):
+            self.complete(self.good('{"ok":false}'))
+        with self.assertRaises(ModelError):
+            self.complete(self.good('not json'))
+
+    def test_reasoning_and_tools_never_substitute_for_final(self):
+        for kind in ("tool_call", "invalid_tool_call", "unknown"):
+            raw = self.good(); raw["output"].append({"type": kind, "content": "{}"})
+            with self.assertRaisesRegex(ModelError, "unexpected_tool_call"):
+                self.complete(raw)
+        raw = self.good(); raw["output"] = [{"type": "reasoning", "content": '{"ok":true}'}]
+        with self.assertRaisesRegex(ModelError, "reasoning_option_not_honored"):
+            self.complete(raw)
+        with self.assertRaisesRegex(ModelError, "empty_content_with_reasoning"):
+            self.complete(raw, reasoning_effort=None)
+        raw = self.good(); raw["stats"]["reasoning_output_tokens"] = 5
+        with self.assertRaisesRegex(ModelError, "reasoning_option_not_honored"):
+            self.complete(raw)
+
+    def test_ambiguous_and_truncated_native_output_rejected(self):
+        raw = self.good(); raw["output"] *= 2
+        with self.assertRaisesRegex(ModelError, "output_invalid"):
+            self.complete(raw)
+        raw = self.good(); raw["stats"]["total_output_tokens"] = 128
+        with self.assertRaises(ModelOutputTruncated):
+            self.complete(raw)
+
+    def test_profile_requires_explicit_compatible_settings(self):
+        for change in ({"output_mode": "json_schema"}, {"reasoning_effort": "minimal"}, {"reasoning_effort": "xhigh"}, {"temperature": 1.1}):
+            with self.assertRaises(ValueError):
+                self.adapter(**change)
+
+    def test_native_models_and_degraded_capability(self):
+        from types import SimpleNamespace
+        adapter = self.adapter()
+        bodies = [{"models": [{"key": "embedding", "type": "embedding"}, {"key": "synthetic", "type": "llm"}]}, self.good()]
+        with patch.object(adapter.transport, "request", side_effect=[SimpleNamespace(body=json.dumps(x).encode(), latency_ms=1) for x in bodies]):
+            report = adapter.capability_test()
+        self.assertEqual(report["status"], "degraded")
+        self.assertEqual(report["schema"], "passed")
+        self.assertEqual(report["model_ids"], ["synthetic"])
+
+    def test_native_repair_text_is_only_final_message(self):
+        from spec_enricher.llm import repair_text
+        self.assertEqual(repair_text(json.dumps(self.good()).encode()), '{"ok":true}')
+        self.assertIn("no textual content", repair_text(json.dumps({"output": [{"type": "reasoning", "content": '{"ok":true}'}]}).encode()))
+
+
+class NativeSyntaxNormalizationTests(unittest.TestCase):
+    def decode(self, text, enabled=True):
+        from spec_enricher.llm import output_object
+        return output_object(text, "prompt_json", allow_missing_array_object_open=enabled)
+
+    def test_unique_missing_open_and_strings_are_not_edited(self):
+        raw = '{"facts":[{"id":"a"},"id":"b","quote":"literal }, \\\"key\\\": [ text"}]}'
+        value, normalization = self.decode(raw)
+        self.assertEqual(value["facts"][1]["quote"], 'literal }, "key": [ text')
+        self.assertEqual(value["facts"][1]["id"], "b")
+        self.assertTrue(normalization.startswith("single_missing_array_object_open_brace:char_offset="))
+        offset = int(normalization.split("=")[1])
+        self.assertEqual(json.loads(raw[:offset] + "{" + raw[offset:]), value)
+        self.assertIsNone(self.decode('{"facts":[{"id":"a"}]}')[1])
+
+    def test_all_other_repairs_duplicate_keys_and_combinations_reject(self):
+        bad = [
+            '{"facts":["id":"b","id":"c"}]}',
+            '{"facts":["id":"b"},"id":"c"}]}',
+            '{"facts":["id":"b"}',
+            '{"facts":[{"id":"b",}]}',
+            '{"facts":[{"id":true "side":"b"}]}',
+            '{"facts":[{"id":"literal , \\\"key\\\": value"}]} trailing',
+            '{"id":"a", "id2":"b"}}',
+            '```json\n{"facts":["id":"b"}]}\n```',
+            '{"facts":["id":"b","value":NaN}]}',
+        ]
+        for raw in bad:
+            with self.assertRaises(ValueError, msg=raw):
+                self.decode(raw)
+        with self.assertRaises(ValueError):
+            self.decode('{"facts":["id":"b"}]}', enabled=False)
+        with self.assertRaises(ValueError):
+            self.decode('{"facts":["id":"' + 'x' * 65536 + '"}]}')
+
+
+class NativeSyntaxGateTests(NativeLMStudioTests):
+    def test_schema_title_alone_does_not_authorize_normalization(self):
+        from types import SimpleNamespace
+        adapter = self.adapter()
+        schema = {"type": "object", "title": "builtin.P3.native.fact-pins.v1", "properties": {"items": {"type": "array", "items": {"type": "object", "properties": {"ok": {"const": True}}, "required": ["ok"], "additionalProperties": False}}}, "required": ["items"], "additionalProperties": False}
+        content = '{"items":["ok":true}]}'
+        raw = self.good(content)
+        body = json.dumps(raw).encode()
+        with patch.object(adapter.transport, "request", return_value=SimpleNamespace(body=body, latency_ms=1)):
+            with self.assertRaises(ModelError):
+                adapter.complete(self.messages, schema)
+            adapter._allow_missing_array_object_open = True
+            completion = adapter.complete(self.messages, schema)
+            self.assertEqual(completion.value, {"items": [{"ok": True}]})
+            self.assertEqual(completion.raw, raw)
+            self.assertIn("char_offset=", completion.format_normalization)
+        raw = self.good('{"items":["ok":false}]}')
+        with patch.object(adapter.transport, "request", return_value=SimpleNamespace(body=json.dumps(raw).encode(), latency_ms=1)):
+            with self.assertRaises(OutputSchemaError):
+                adapter.complete(self.messages, schema)

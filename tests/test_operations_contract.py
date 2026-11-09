@@ -54,6 +54,10 @@ class OperationsContractTests(unittest.TestCase):
                 self.assertFalse(declared_operation_deferral(inert))
 
         runner = PipelineRunner.__new__(PipelineRunner)
+        # These isolated stage tests exercise the legacy comparison mode.
+        runner.review = False
+        runner.sides = ("baseline", "proposed")
+        runner.review_coverage_gaps = set()
         runner.state = {
             "P1": {
                 "documents": [

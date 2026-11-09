@@ -98,6 +98,7 @@ __pycache__/
 !/tests/test_evaluation_conflicts.py
 !/tests/test_handoff_ingestion.py
 !/tests/test_i18n.py
+!/tests/ui-files.test.mjs
 !/tests/test_inputs_snapshots.py
 !/tests/test_judgment_batching.py
 !/tests/test_judgment_contract.py
@@ -139,3 +140,14 @@ __pycache__/
 !/fixtures/synthetic/inputs/documents/context.yaml
 !/fixtures/synthetic/inputs/project-a/master.md
 !/fixtures/synthetic/inputs/project-b/master.md
+
+!/tests/ui-skill-import.test.mjs
+
+!/tests/test_fact_wire.py
+
+!/tests/test_review_reporting.py
+
+!/tests/ui-review-mode.test.mjs
+
+!/tests/test_review_scope.py
+!/tests/ui-navigation.test.cjs

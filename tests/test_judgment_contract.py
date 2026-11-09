@@ -371,3 +371,63 @@ class JudgmentContractTests(unittest.TestCase):
         for quote, identifier in (("fields are collected", block.id), ("excluded", "other-side")):
             with self.assertRaisesRegex(ValueError, "invented_or_out_of_scope_evidence"):
                 evidence([Citation(block_id=identifier, quote=quote)], allowed)
+
+
+class NativeOptionalDesignTests(JudgmentContractTests):
+    """The optional field never relaxes decisions or evidence contracts."""
+
+    def test_native_missing_summary_stays_absent_not_invented(self):
+        from spec_enricher import judgment_wire
+        native, metadata = judgment_wire.prepare(self.schema)
+        value = self.provider_value()
+        del value["applicable_design"]
+        original = copy.deepcopy(value)
+        output = judgment_wire.decode(self.envelope(value), native)
+        self.assertIsNone(output.judgments[0].applicable_design)
+        self.assertEqual(output.judgments[0].assessment, "satisfied_by_spec")
+        self.assertEqual(value, original)
+        self.assertEqual(metadata["missing_presentation_handling"], "absent_to_null_without_inference")
+        self.assertTrue(validate_payload(self.schema, self.envelope(value)))
+        expected = copy.deepcopy(self.schema)
+        expected["$defs"]["ClauseJudgment"]["required"].remove("applicable_design")
+        expected["title"] = judgment_wire.WIRE_CONTRACT
+        self.assertEqual(native, expected)
+
+    def test_native_provided_summary_keeps_nonempty_string_bound(self):
+        from spec_enricher import judgment_wire
+        native, _ = judgment_wire.prepare(self.schema)
+        for bad in (None, "", "x" * 601, 42):
+            with self.assertRaises(ValueError):
+                judgment_wire.decode(self.envelope(self.provider_value() | {"applicable_design": bad}), native)
+        self.assertEqual(judgment_wire.decode(self.envelope(self.provider_value()), native).judgments[0].applicable_design,
+                         self.provider_value()["applicable_design"])
+
+    def test_native_decision_identifiers_evidence_and_removal_remain_required(self):
+        from spec_enricher import judgment_wire
+        native, _ = judgment_wire.prepare(self.schema)
+        value = self.provider_value(); del value["applicable_design"]
+        for field in ("requirement_id", "version", "clause_id", "side", "verdict", "support", "evidence", "explanation", "question", "control_removal"):
+            invalid = copy.deepcopy(value); del invalid[field]
+            with self.assertRaises(ValueError, msg=field):
+                judgment_wire.decode(self.envelope(invalid), native)
+        for change in ({"requirement_id": "unknown"}, {"version": "untrusted"}, {"clause_id": "wrong"},
+                       {"side": "proposed"}, {"evidence": []},
+                       {"evidence": [{"block_id": "unknown", "quote": "invented"}]},
+                       {"support": "conflicting"}, {"control_removal": {}},
+                       {"verdict": "unknown", "question": None}):
+            with self.assertRaises(ValueError, msg=str(list(change))):
+                judgment_wire.decode(self.envelope(value | change), native)
+
+    def test_native_scope_is_exact_builtin_p5_only(self):
+        from spec_enricher import judgment_wire
+        profile = ConnectionProfile(name="Synthetic", adapter="lm_studio_native", endpoint="http://127.0.0.1:1234/api/v1", local_addresses=["127.0.0.1"], output_mode="prompt_json")
+        args = dict(stage="P5", profile=profile, contract=JudgmentsOutput, instruction=defaults()["P5"], prompt=None, schema=None, skill=None)
+        self.assertTrue(judgment_wire.enabled(**args))
+        adapted = judgment_wire.instruction_for(defaults()["P5"])
+        self.assertNotIn("First state applicable_design:", adapted["template"])
+        self.assertIn("Optionally state applicable_design:", adapted["template"])
+        self.assertIn("First state applicable_design:", defaults()["P5"]["template"])
+        for change in ({"stage": "P8"}, {"instruction": defaults()["P5"] | {"id": "custom", "revision": 1}},
+                       {"instruction": defaults()["P5"] | {"template": "custom"}}, {"prompt": defaults()["P5"]},
+                       {"schema": {}}, {"skill": {}}, {"profile": profile.model_copy(update={"adapter": "lm_studio"})}):
+            self.assertFalse(judgment_wire.enabled(**(args | change)))
