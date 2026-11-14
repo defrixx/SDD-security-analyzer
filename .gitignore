@@ -151,3 +151,5 @@ __pycache__/
 
 !/tests/test_review_scope.py
 !/tests/ui-navigation.test.cjs
+
+!/tests/test_mcp_modern.py

@@ -10,6 +10,7 @@ from .catalog import digest
 from .connections import ConnectionProfile, safe_schema
 from .i18n import translate
 from .inputs import parse
+from . import mcp_modern
 from .network import Destination, NetworkError, Transport, is_event_stream, rpc_id_matches
 from .schema_worker import SchemaValidationUnavailable, validate_payload
 from .secrets import SecretReferenceError, SecretStore
@@ -34,6 +35,9 @@ class MCPBroker:
         self.profile = profile
         self.secrets = secrets
         self.authorize = authorize
+        self.modern = profile.adapter == mcp_modern.ADAPTER
+        self.protocol_version = mcp_modern.VERSION if self.modern else PROTOCOL_VERSION
+        self.rejected_tools: list[dict] = []
         self.transport = Transport(
             Destination(profile.endpoint, tuple(profile.local_addresses)),
             timeout=profile.timeout,
@@ -68,9 +72,15 @@ class MCPBroker:
             headers["Authorization"] = "Bearer " + self.secrets.get(
                 self.project_id, self.profile.secret_ref or ""
             )
-        if self.session_id:
+        if self.modern:
+            if notification:
+                raise MCPError("unsupported_modern_notification")
+            tool = self.tools.get(params.get("name"), {}) if method == "tools/call" else {}
+            params, protocol_headers = mcp_modern.request_parts(method, params, tool.get("input_schema"))
+            headers.update(protocol_headers)
+        elif self.session_id:
             headers["Mcp-Session-Id"] = self.session_id
-        if self.initialized:
+        if self.initialized and not self.modern:
             headers["MCP-Protocol-Version"] = PROTOCOL_VERSION
         credentials = self.secrets.header_credentials(
             headers, self.profile.secret_headers, bearer=self.profile.auth == "bearer"
@@ -97,7 +107,7 @@ class MCPBroker:
         if self.bytes > self.profile.max_bytes:
             raise MCPError("mcp_byte_budget")
         session_id = result.headers.get("mcp-session-id")
-        if session_id:
+        if session_id and not self.modern:
             if len(session_id) > 200 or any(
                 ord(char) < 33 or ord(char) > 126 for char in session_id
             ):
@@ -117,6 +127,11 @@ class MCPBroker:
                 ]
                 if lines:
                     messages.append(parse("\n".join(lines).encode(), "json", catalog=True))
+            if self.modern and any(
+                isinstance(message, dict) and "method" in message and "id" in message
+                for message in messages
+            ):
+                raise MCPError("unexpected_modern_server_request")
             matches = [
                 message
                 for message in messages
@@ -135,30 +150,40 @@ class MCPBroker:
             or not rpc_id_matches(response.get("id"), self.next_id)
             or "error" in response
             or "result" not in response
+            or (self.modern and "method" in response)
         ):
             raise MCPError("rpc_response_rejected")
-        return response["result"]
+        return mcp_modern.complete_result(response["result"]) if self.modern else response["result"]
 
     def discover(self) -> list[dict]:
-        response = self._request(
-            "initialize",
-            {
-                "protocolVersion": PROTOCOL_VERSION,
-                "capabilities": {},
-                "clientInfo": {"name": "spec-enricher", "version": "1.0.0"},
-            },
-        )
-        if not isinstance(response, dict) or response.get("protocolVersion") != PROTOCOL_VERSION:
-            raise MCPError("unsupported_protocol")
-        info = response.get("serverInfo", {})
+        if self.modern:
+            self.initialized = False
+            self.tools = {}
+            self.rejected_tools.clear()
+            response = self._request("server/discover", {})
+            info = mcp_modern.discovery_info(response)
+        else:
+            response = self._request(
+                "initialize",
+                {
+                    "protocolVersion": PROTOCOL_VERSION,
+                    "capabilities": {},
+                    "clientInfo": {"name": "spec-enricher", "version": "1.0.0"},
+                },
+            )
+            if not isinstance(response, dict) or response.get("protocolVersion") != PROTOCOL_VERSION:
+                raise MCPError("unsupported_protocol")
+            info = response.get("serverInfo", {})
         if isinstance(info, dict):
             self.server_info = {
                 key: info[key]
                 for key in ("name", "version")
                 if isinstance(info.get(key), str) and len(info[key]) <= 200
             }
-        self.initialized = True
-        self._request("notifications/initialized", {}, notification=True)
+        if not self.modern:
+            self.initialized = True
+            self._request("notifications/initialized", {}, notification=True)
+        seen_tools = set()
         cursor = None
         seen_cursors = set()
         for _ in range(10):
@@ -170,13 +195,23 @@ class MCPBroker:
                     not isinstance(tool, dict)
                     or not isinstance(tool.get("name"), str)
                     or not tool["name"]
-                    or tool["name"] in self.tools
+                    or tool["name"] in seen_tools
+                    or (not self.modern and tool["name"] in self.tools)
                 ):
                     raise MCPError("invalid_or_duplicate_tool")
+                seen_tools.add(tool["name"])
+                if len(seen_tools) > 200:
+                    raise MCPError("tool_limit")
                 remaining = self.deadline - time.monotonic()
                 if remaining <= 0:
                     raise MCPError("mcp_wall_budget")
                 safe_schema(tool.get("inputSchema"), timeout=min(5, remaining))
+                if self.modern:
+                    try:
+                        mcp_modern.header_bindings(tool["inputSchema"])
+                    except mcp_modern.ModernProtocolError as exc:
+                        self.rejected_tools.append({"name": tool["name"], "reason": str(exc)})
+                        continue
                 self.tools[tool["name"]] = {
                     "name": tool["name"],
                     "description": str(tool.get("description", ""))[:10000],
@@ -187,6 +222,7 @@ class MCPBroker:
                     raise MCPError("tool_limit")
             cursor = page.get("nextCursor")
             if cursor is None:
+                self.initialized = True
                 return list(self.tools.values())
             if not isinstance(cursor, str) or len(cursor) > 1000 or cursor in seen_cursors:
                 raise MCPError("invalid_tools_cursor")
@@ -256,6 +292,8 @@ class MCPBroker:
             "network": "not_tested",
             "auth": "not_tested",
             "discovery": "not_tested",
+            "protocol_version": self.protocol_version,
+            "rejected_tools": self.rejected_tools,
             "read_only_call": "not_tested",
             "tools": [],
             "error": None,

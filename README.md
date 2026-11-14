@@ -93,6 +93,30 @@ A successful capability test proves protocol compatibility, not analysis quality
 
 Other OpenAI-compatible endpoints require explicit external-access policy and project grants. You can enforce an additional startup restriction with `APP_DENY_EXTERNAL_EGRESS=true`; approved private endpoints remain available. Optional MCP sources support typed, explicitly allowlisted read-only calls, not arbitrary tools or shell execution.
 
+### MCP protocol profiles
+
+Choose the protocol explicitly for each MCP connection. Existing `streamable_http`
+connections retain **2025-06-18**, its initialization handshake and optional session
+ID. The separate `streamable_http_2026_07_28` profile uses **2026-07-28** stateless
+requests, per-request metadata and mirrored HTTP headers. Saving a different
+profile creates a connection revision; test and approve that revision through the
+normal data-access workflow. The capability report identifies the selected version.
+
+The modern profile performs `server/discover`, paginated `tools/list`, and only
+explicitly allowlisted `tools/call`. Invalid `x-mcp-header` tool definitions are
+excluded and reported; header-bound arguments must match the approved schema.
+Results require an explicit `resultType: complete` discriminator; sampling, elicitation, roots, tasks, subscriptions,
+server-initiated requests and incomplete interaction results are not supported.
+There is no protocol fallback, automatic tool retry, cross-request cache or
+implicit use of another profile. A legacy-only server requires the legacy profile;
+a modern-only server requires the modern profile. These profiles are not general
+MCP agents, and tool descriptions never grant read-only authority.
+
+Protocol references: [legacy lifecycle](https://modelcontextprotocol.io/specification/2025-06-18/basic/lifecycle),
+[modern versioning](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning),
+[modern HTTP binding](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http)
+and [discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover).
+
 Credentials are **session-only by default** and must be entered again after restart. Do not put keys in Git, Compose environment values, documents, or shell history. Advanced file-secret support requires a separate read-only mount under `/run/secrets` and file mode; Docker does not encrypt the host secret file.
 
 ### LM Studio native profile

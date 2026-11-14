@@ -3,7 +3,7 @@
 export type APIConnectionProfile = {
 "name": string;
 "kind"?: ("llm" | "mcp");
-"adapter"?: ("openai_compatible" | "lm_studio" | "lm_studio_native" | "streamable_http");
+"adapter"?: ("openai_compatible" | "lm_studio" | "lm_studio_native" | "streamable_http" | "streamable_http_2026_07_28");
 "endpoint": string;
 "local_addresses"?: Array<string>;
 "model"?: string;

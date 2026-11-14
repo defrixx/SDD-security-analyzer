@@ -251,6 +251,51 @@ class ConnectionAPITests(unittest.TestCase):
             self.client.get(f"/api/v1/projects/{self.b}/connections/{cid}").status_code, 404
         )
 
+    def test_modern_mcp_opt_in_creates_unapproved_revision(self):
+        from test_mcp_modern import Handler as ModernHandler, VERSION, ADAPTER
+        profile = {
+            "name": "Explicit MCP revision", "kind": "mcp", "adapter": "streamable_http",
+            "endpoint": f"http://127.0.0.1:{self.server.server_port}/mcp",
+            "local_addresses": ["127.0.0.1"], "enabled": True,
+            "data_scopes": ["source_queries"],
+        }
+        prefix = f"/api/v1/projects/{self.a}/connections"
+        response = self.client.post(prefix, json=profile, headers=self.headers)
+        response.raise_for_status()
+        saved = response.json()
+        route = f"{prefix}/{saved['id']}"
+        tested = self.client.post(route + "/test", headers=self.headers)
+        tested.raise_for_status()
+        self.assertEqual(tested.json()["result"]["protocol_version"], "2025-06-18")
+        grant = self.client.post(route + "/grants", json={"confirmed": True,
+            "revision": 1, "expected_sha256": saved["sha256"],
+            "data_scopes": ["source_queries"]}, headers=self.headers)
+        grant.raise_for_status()
+        changed = profile | {"adapter": ADAPTER}
+        updated = self.client.put(route, json={"expected_revision": 1, "profile": changed}, headers=self.headers)
+        updated.raise_for_status()
+        current = self.client.get(route).json()
+        self.assertEqual(current["revision"], 2)
+        self.assertEqual(current["content"]["adapter"], ADAPTER)
+        self.assertEqual(current["granted_scopes"], [])
+        self.assertIsNone(current["capability_report"])
+        old = self.client.get(route + "?revision=1").json()
+        self.assertEqual(old["content"]["adapter"], "streamable_http")
+        self.assertEqual(old["capability_report"]["result"]["protocol_version"], "2025-06-18")
+        self.server.RequestHandlerClass = ModernHandler
+        self.server.overrides = {}
+        self.server.tools = []
+        self.server.reply_hook = self.server.after_request = None
+        self.server.rpc_error = self.server.bad_id = self.server.session_header = False
+        self.server.http_status = 200
+        self.server.requests.clear()
+        tested = self.client.post(route + "/test", headers=self.headers)
+        tested.raise_for_status()
+        self.assertEqual(tested.json()["result"]["status"], "passed")
+        self.assertEqual(tested.json()["result"]["protocol_version"], VERSION)
+        self.assertEqual([r[0]["method"] for r in self.server.requests], ["server/discover", "tools/list"])
+        self.assertEqual(self.client.get(route).json()["granted_scopes"], [])
+
     def test_secret_value_never_in_sqlite_config_or_response(self):
         secret = "synthetic-never-persist-this-secret-98765"
         result = self.client.post(

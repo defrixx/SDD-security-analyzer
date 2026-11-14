@@ -17,7 +17,7 @@ class ConnectionProfile(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
     name: str = Field(min_length=1, max_length=200)
     kind: Literal["llm", "mcp"] = "llm"
-    adapter: Literal["openai_compatible", "lm_studio", "lm_studio_native", "streamable_http"] = "openai_compatible"
+    adapter: Literal["openai_compatible", "lm_studio", "lm_studio_native", "streamable_http", "streamable_http_2026_07_28"] = "openai_compatible"
     endpoint: str = Field(min_length=8, max_length=2048)
     local_addresses: list[str] = Field(default_factory=list, max_length=16)
     model: str = Field(default="", max_length=300)
@@ -78,6 +78,9 @@ class ConnectionProfile(BaseModel):
             if (
                 not re.fullmatch(r"[A-Za-z][A-Za-z0-9-]{0,99}", key)
                 or key.lower() in forbidden_headers
+                or (self.adapter == "streamable_http_2026_07_28" and (
+                    key.lower().startswith("mcp-") or key.lower() in {"last-event-id", "accept"}
+                ))
                 or len(value) > 2048
                 or any(ord(c) < 32 or ord(c) > 126 for c in value)
             ):
@@ -98,9 +101,9 @@ class ConnectionProfile(BaseModel):
                 raise ValueError("unsupported_native_reasoning_setting")
             if self.temperature is not None and self.temperature > 1:
                 raise ValueError("native_temperature_must_be_between_zero_and_one")
-        if self.kind == "llm" and self.adapter == "streamable_http":
+        if self.kind == "llm" and self.adapter in {"streamable_http", "streamable_http_2026_07_28"}:
             raise ValueError("invalid LLM adapter")
-        if self.kind == "mcp" and self.adapter != "streamable_http":
+        if self.kind == "mcp" and self.adapter not in {"streamable_http", "streamable_http_2026_07_28"}:
             raise ValueError("MCP requires Streamable HTTP")
         if self.kind == "llm" and self.allowed_tools:
             raise ValueError("LLM server-side tools are disabled")

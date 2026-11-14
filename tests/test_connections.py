@@ -215,6 +215,7 @@ class ConnectionTests(unittest.TestCase):
                     self.server.requests.clear()
                     report = MCPBroker("A", profile, SecretStore()).capability_test()
                     self.assertEqual(report["status"], "failed")
+                    self.assertEqual(report["protocol_version"], "2025-06-18")
                     self.assertEqual([r["method"] for r in self.server.requests], ["initialize"])
             # Integral JSON numbers remain interoperable; Boolean true is not1.
             self.server.initialize_response_id = 1.0
@@ -227,6 +228,7 @@ class ConnectionTests(unittest.TestCase):
         broker = MCPBroker("A", profile, SecretStore())
         report = broker.capability_test()
         self.assertEqual(report["status"], "passed")
+        self.assertEqual(report["protocol_version"], "2025-06-18")
         self.assertEqual(broker.server_info["name"], "synthetic")
 
     def test_mcp_error_flag_is_boolean_and_never_silently_successful(self):

@@ -249,7 +249,8 @@ function editConnection(pid, record = null, draftProfile = null) {
     ["lm_studio", "LM Studio (OpenAI API)"],
     ["lm_studio_native", t("LM Studio native · thinking off available", "LM Studio native · можно отключить thinking")],
     ["openai_compatible", "OpenAI-compatible / gateway"],
-    ["streamable_http", "MCP Streamable HTTP"],
+    ["streamable_http", "MCP Streamable HTTP · 2025-06-18"],
+    ["streamable_http_2026_07_28", "MCP Streamable HTTP · 2026-07-28 (stateless)"],
   ]);
   const name = connectionField(form, t("Name", "Название"), profile.name || "LM Studio");
   name.required = true;
@@ -480,7 +481,7 @@ function editConnection(pid, record = null, draftProfile = null) {
       mode.value = "prompt_json";
     }
     syncNative();
-    if (preset.value === "streamable_http") {
+    if (["streamable_http", "streamable_http_2026_07_28"].includes(preset.value)) {
       name.value = "Read-only MCP";
       endpoint.value = "http://host.docker.internal:8000/mcp";
     }
@@ -499,7 +500,7 @@ function editConnection(pid, record = null, draftProfile = null) {
       }
       const value = {
         name: name.value,
-        kind: preset.value === "streamable_http" ? "mcp" : "llm",
+        kind: ["streamable_http", "streamable_http_2026_07_28"].includes(preset.value) ? "mcp" : "llm",
         adapter: preset.value,
         endpoint: endpoint.value,
         local_addresses: addresses.value
@@ -520,7 +521,7 @@ function editConnection(pid, record = null, draftProfile = null) {
         output_mode: mode.value,
         max_calls: Number(calls.value),
         max_bytes: Number(bytes.value),
-        allowed_tools: preset.value === "streamable_http" ? JSON.parse(tools.value) : {},
+        allowed_tools: ["streamable_http", "streamable_http_2026_07_28"].includes(preset.value) ? JSON.parse(tools.value) : {},
         data_scopes: Object.keys(scopes).filter((key) => scopes[key].checked),
         enabled: enabled.checked,
       };
